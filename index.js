@@ -54,32 +54,48 @@ async function main(){
 
     app.get('/sightings', async(res,req)=>{
 
-        let db = MongoUtil.getDB()
-        let criteria = {}
+        try{
+            let db = MongoUtil.getDB()
+            let criteria = {}
 
-        if(req.query.description){
+            if(req.query.description){
 
-            criteria["description"]={
-                '$regex':req.query.description,
-                '$options':'i'
+                criteria["description"]={
+                    '$regex':req.query.description,
+                    '$options':'i'
+                }
+
             }
+
+            if(req.query.food){
+
+                criteria["food"]={
+                    '$in':[req.query.food]
+                }
+
+            }
+
+            let sightings= await db.collection('sightings').find(criteria).toArray()
+
+            res.status(200)
+            res.send(sightings)
+
+        }catch(e){
+
+            res.status(500)
+            res.json({
+                "error":"We have encountered an internal server error"
+            })
+            console.log(e)
+
 
         }
 
-        if(req.query.food){
-
-            criteria["food"]={
-                '$in':[req.query.food]
-            }
 
         }
-
-        let sightings= await db.collection('sightings').find(criteria).toArray()
-
-        res.status(200)
-        res.send(sightings)
-
-    })
+       
+        )
+    
 }
 
 main()
