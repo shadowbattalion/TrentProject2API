@@ -26,6 +26,31 @@ async function main(){
 
     })
 
+    app.post('/sighting',async(req,res)=>{
+
+        try{
+            let description = req.body.description
+            let food = req.body.food
+            let datetime = req.body.datetime ? new Date(req.body.datetime): new Date() //optional date
+            let db = MongoUtil.getDB()
+            let result = await db.collection('sightings').insertOne({
+                "description":description,
+                "food":food,
+                "datetime":datetime
+            })
+
+            res.status(200)
+            res.send(result)
+        }catch(e){
+
+            res.status(500)
+            res.json({
+                "error":"We have encountered an internal server error"
+            })
+            console.log(e)
+
+        }
+    })
 }
 
 main()
