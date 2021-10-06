@@ -17,11 +17,21 @@ app.use(cors())
 
 
 async function main(){
+    // await MongoUtil.connect(process.env.MONGO_URI,"free-food-sightings")
 
+    app.get('/', (req,res)=>{
+        res.json({
+            "message":"Hello World"
+        })
 
+    })
 
 }
 
 main()
 
-app.listen
+app.listen(3000){
+
+    console.log("Server Running")
+
+}
