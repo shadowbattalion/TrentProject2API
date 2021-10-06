@@ -51,6 +51,35 @@ async function main(){
 
         }
     })
+
+    app.get('/sightings', async(res,req)=>{
+
+        let db = MongoUtil.getDB()
+        let criteria = {}
+
+        if(req.query.description){
+
+            criteria["description"]={
+                '$regex':req.query.description,
+                '$options':'i'
+            }
+
+        }
+
+        if(req.query.food){
+
+            criteria["food"]={
+                '$in':[req.query.food]
+            }
+
+        }
+
+        let sightings= await db.collection('sightings').find(criteria).toArray()
+
+        res.status(200)
+        res.send(sightings)
+
+    })
 }
 
 main()
