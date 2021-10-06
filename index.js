@@ -1,3 +1,5 @@
+const { ObjectId } = require('bson')
+
 const express = requires()
 const cors= requires('cors')
 require('dotenv').config()
@@ -95,6 +97,43 @@ async function main(){
         }
        
         )
+
+
+    app.put('/sighting/:id', async(req,res)=>{
+
+        let description = req.body.description
+        let food = req.body.food
+        let datetime = req.body.datetime ? new Date(req.body.datetime): new Date() 
+
+        let db = MongoUtil.getDB()
+        let results = await db.collection('sightings').updateOne({
+            '_id':ObjectId(req.params.id)},
+            {
+                '$set':{description,food,datetime}
+
+            }
+        )
+        
+        res.status(200)
+        res.send(results)
+
+
+    })
+
+    app.delete('/sighting/:id', async(req,res)=>{
+
+        let db = MongoUtil.getDB()
+        
+
+
+        res.status(200)
+        res.send(results)
+
+    })
+
+
+
+    
     
 }
 
