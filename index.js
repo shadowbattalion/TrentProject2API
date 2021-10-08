@@ -1,6 +1,6 @@
-const express = require('express');
-const cors = require('cors');
-require('dotenv').config();
+const express = require('express')
+const cors = require('cors')
+require('dotenv').config()
 const MongoUtil = require('./MongoUtil.js')
 const ObjectId = require('mongodb').ObjectId;
 
@@ -18,13 +18,29 @@ app.use(cors());
 
 async function main() {
 
-    // await MongoUtil.connect(process.env.MONGO_URI, "tgc14-free-food-sightings")
+    //Endpoints test area
 
     app.get('/', (req, res) => {
         res.json({
             "message": "hello world"
         })
     })
+
+    // app.get('/cases', async (req, res) => {
+
+    //     // let cases=await axios.get("TrentProject2API/cases.json") 
+    //     // .get()
+    //     // res.send(cases)
+    //     // res.json(cases.data)
+    // })
+
+
+
+
+
+    // await MongoUtil.connect(process.env.MONGO_URI, "tgc14-free-food-sightings")
+
+    
 
     // app.post('/sighting', async (req, res) => {
 
