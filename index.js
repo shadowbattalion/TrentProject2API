@@ -1,146 +1,131 @@
-const { ObjectId } = require('bson')
+const express = require('express');
+const cors = require('cors');
+require('dotenv').config();
+const MongoUtil = require('./MongoUtil.js')
+const ObjectId = require('mongodb').ObjectId;
 
-const express = requires()
-const cors= requires('cors')
-require('dotenv').config()
-// const MongoUtil=require()
-// const ObjectId=require('mongodb').ObjectId
+let app = express();
 
-let app = express()
+// important for RESTFul API:
 
-//allow JSON
-app.use(express.json())
+// allow Express to process JSON payload
+// in POST, PUT and PATCH requests
+app.use(express.json());
 
+// enable CORS so that our React applications
+// hosted on a domain name can use it
+app.use(cors());
 
-//CORS
-//allow other people to user
-app.use(cors())
+async function main() {
 
+    // await MongoUtil.connect(process.env.MONGO_URI, "tgc14-free-food-sightings")
 
-
-async function main(){
-    // await MongoUtil.connect(process.env.MONGO_URI,"free-food-sightings")
-
-    app.get('/', (req,res)=>{
+    app.get('/', (req, res) => {
         res.json({
-            "message":"Hello World"
+            "message": "hello world"
         })
-
     })
 
-    app.post('/sighting',async(req,res)=>{
+    // app.post('/sighting', async (req, res) => {
 
-        try{
-            let description = req.body.description
-            let food = req.body.food
-            let datetime = req.body.datetime ? new Date(req.body.datetime): new Date() //optional date
-            let db = MongoUtil.getDB()
-            let result = await db.collection('sightings').insertOne({
-                "description":description,
-                "food":food,
-                "datetime":datetime
-            })
+    //     try {
+    //         // req.body is an object that contains the
+    //         // data sent to the express endpoint
+    //         let description = req.body.description;
+    //         let food = req.body.food;
+    //         // check if the datetime key exists in the req.body object
+    //         // if it does, create a new Date object from it
+    //         // or else, default to today's date
+    //         let datetime = req.body.datetime ? new Date(req.body.datetime) : new Date();
 
-            res.status(200)
-            res.send(result)
-        }catch(e){
+    //         let db = MongoUtil.getDB();
+    //         let result = await db.collection('sightings').insertOne({
+    //             description, food, datetime
+    //         })
 
-            res.status(500)
-            res.json({
-                "error":"We have encountered an internal server error"
-            })
-            console.log(e)
+    //         // inform the client that the process is successful
+    //         res.status(200);
+    //         res.json(result);
+    //     } catch (e) {
+    //         res.status(500);
+    //         res.json({
+    //             'error': "We have encountered an interal server error. Please contact admin"
+    //         });
+    //         console.log(e);
+    //     }
+    // })
 
-        }
-    })
+    // app.get('/sightings', async (req, res) => {
 
-    app.get('/sightings', async(res,req)=>{
+    //     try {
+    //         let db = MongoUtil.getDB();
 
-        try{
-            let db = MongoUtil.getDB()
-            let criteria = {}
+    //         // start with an empty critera object
+    //         let criteria = {};
 
-            if(req.query.description){
+    //         // we fill in the critera depending on whether specific
+    //         // query string keys are provided
 
-                criteria["description"]={
-                    '$regex':req.query.description,
-                    '$options':'i'
-                }
+    //         // if the `description` key exists in req.query
+    //         if (req.query.description) {
+    //             criteria['description'] = {
+    //                 '$regex': req.query.description,
+    //                 '$options': 'i'
+    //             }
+    //         }
 
-            }
+    //         if (req.query.food) {
+    //             criteria['food'] = {
+    //                 '$in': [req.query.food]
+    //             }
+    //         }
 
-            if(req.query.food){
+    //         // console.log(criteria)
 
-                criteria["food"]={
-                    '$in':[req.query.food]
-                }
+    //         let sightings = await db.collection('sightings').find(criteria).toArray();
+    //         res.status(200);
+    //         res.send(sightings);
+    //     } catch (e) {
+    //         res.status(500);
+    //         res.send({
+    //             'error':"We have encountered an internal server error"
+    //         })         
+    //     }
+    // })
 
-            }
+    // app.put('/sighting/:id', async(req,res)=>{
+    //     // assume that we are replacing the document
+    //     let description = req.body.description;
+    //     let food = req.body.food;
+    //     let datetime = req.body.datetime ? new Date(req.body.datetime) : new Date();
 
-            let sightings= await db.collection('sightings').find(criteria).toArray()
+    //     let db = MongoUtil.getDB();
+    //     let results = await db.collection('sightings').updateOne({
+    //         '_id': ObjectId(req.params.id)
+    //     },{
+    //         '$set':{
+    //             description, food, datetime
+    //         }
+    //     })
+    //     res.status(200);
+    //     res.send(results)
+    // })
 
-            res.status(200)
-            res.send(sightings)
-
-        }catch(e){
-
-            res.status(500)
-            res.json({
-                "error":"We have encountered an internal server error"
-            })
-            console.log(e)
-
-
-        }
-
-
-        }
-       
-        )
-
-
-    app.put('/sighting/:id', async(req,res)=>{
-
-        let description = req.body.description
-        let food = req.body.food
-        let datetime = req.body.datetime ? new Date(req.body.datetime): new Date() 
-
-        let db = MongoUtil.getDB()
-        let results = await db.collection('sightings').updateOne({
-            '_id':ObjectId(req.params.id)},
-            {
-                '$set':{description,food,datetime}
-
-            }
-        )
-        
-        res.status(200)
-        res.send(results)
-
-
-    })
-
-    app.delete('/sighting/:id', async(req,res)=>{
-
-        let db = MongoUtil.getDB()
-        
+    // app.delete('/sighting/:id', async(req,res) => {
+    //     let db = MongoUtil.getDB();
+    //     let results = await db.collection('sightings').remove({
+    //         '_id': ObjectId(req.params.id)
+    //     })
+    //     res.status(200);
+    //     res.send(results);
+    // })
 
 
-        res.status(200)
-        res.send(results)
-
-    })
-
-
-
-    
-    
 }
 
-main()
+main();
 
-app.listen(3000){
-
-    console.log("Server Running")
-
-}
+// START SERVER
+app.listen(3000, () => {
+    console.log("Server started")
+})

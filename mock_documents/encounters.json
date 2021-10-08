@@ -1,0 +1,19 @@
+{
+	"_id":12312431,
+	"user":{
+		"age":20,
+		"occupation":"unemployed",
+		"gender":"M"
+		},
+	"date_of_encounter":10-2012,
+	"time of encounter":"midnight",
+	"location":"Woodlands Drive 40",
+	"coordinates":[21,32],
+	"images":["pocong.jpg","pontianak.jpg"],
+	"sightings_description":"Saw a Pontianak, peed my pants",
+	"type_of_activity":"accidental",
+	"equipments_used":["Phone", "Camera", "Microphone"],
+	"contact_type":"visual",
+	"comments":[23424]
+	
+}
