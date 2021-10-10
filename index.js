@@ -26,21 +26,76 @@ async function main() {
         })
     })
 
-    // app.get('/cases', async (req, res) => {
-
-    //     // let cases=await axios.get("TrentProject2API/cases.json") 
-    //     // .get()
-    //     // res.send(cases)
-    //     // res.json(cases.data)
-    // })
 
 
 
+    await MongoUtil.connect(process.env.MONGO_URI, "ghost_sightings")
 
+    app.get('/cases', async (req, res) => {
 
-    // await MongoUtil.connect(process.env.MONGO_URI, "tgc14-free-food-sightings")
-
+        // try {
+            let db = MongoUtil.getDB();
     
+          
+    
+            let cases = await db.collection('cases').find().toArray()
+            // console.log(case)
+            let encounters=[]
+            for (let c of cases){
+
+
+                encounters.push(await db.collection('cases').find({"_id":c[])},{"sightings_description":1}).toArray())
+
+
+            }
+            res.status(200)
+            res.json(encounters)
+
+        // } catch (e) {
+        //     res.status(500)
+        //     res.send(e)         
+        // }
+    })
+
+
+    // app.get('/sightings', async (req, res) => {
+
+    //     try {
+    //         let db = MongoUtil.getDB();
+    
+    //         // start with an empty critera object
+    //         let criteria = {};
+    
+    //         // we fill in the critera depending on whether specific
+    //         // query string keys are provided
+    
+    //         // if the `description` key exists in req.query
+    //         if (req.query.description) {
+    //             criteria['description'] = {
+    //                 '$regex': req.query.description,
+    //                 '$options': 'i'
+    //             }
+    //         }
+    
+    //         if (req.query.food) {
+    //             criteria['food'] = {
+    //                 '$in': [req.query.food]
+    //             }
+    //         }
+    
+    //         // console.log(criteria)
+    
+    //         let sightings = await db.collection('sightings').find(criteria).toArray()
+    //         res.status(200)
+    //         res.send(sightings)
+
+    //     } catch (e) {
+    //         res.status(500)
+    //         res.send({
+    //                 'error':"We have encountered an internal server error"
+    //         })         
+    //     }
+    // })
 
     // app.post('/sighting', async (req, res) => {
 
@@ -71,43 +126,7 @@ async function main() {
     //     }
     // })
 
-    // app.get('/sightings', async (req, res) => {
-
-    //     try {
-    //         let db = MongoUtil.getDB();
-
-    //         // start with an empty critera object
-    //         let criteria = {};
-
-    //         // we fill in the critera depending on whether specific
-    //         // query string keys are provided
-
-    //         // if the `description` key exists in req.query
-    //         if (req.query.description) {
-    //             criteria['description'] = {
-    //                 '$regex': req.query.description,
-    //                 '$options': 'i'
-    //             }
-    //         }
-
-    //         if (req.query.food) {
-    //             criteria['food'] = {
-    //                 '$in': [req.query.food]
-    //             }
-    //         }
-
-    //         // console.log(criteria)
-
-    //         let sightings = await db.collection('sightings').find(criteria).toArray();
-    //         res.status(200);
-    //         res.send(sightings);
-    //     } catch (e) {
-    //         res.status(500);
-    //         res.send({
-    //             'error':"We have encountered an internal server error"
-    //         })         
-    //     }
-    // })
+    //
 
     // app.put('/sighting/:id', async(req,res)=>{
     //     // assume that we are replacing the document
