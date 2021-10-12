@@ -41,7 +41,21 @@ async function main() {
             let witnesses = await db.collection('witness').find().toArray()
             let cases = await db.collection('cases').find().toArray()
 
+            cases_details=[]
+            for(let witness of witnesses){
 
+                for(let c of cases){
+
+
+                    cases_details.push(await db.collection('cases').find({"_id":c}).toArray()
+                    )
+
+
+                }
+
+                witness.cases=cases_details
+
+            }
 
 
 
