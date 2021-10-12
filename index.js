@@ -41,14 +41,15 @@ async function main() {
             let witnesses = await db.collection('witness').find().toArray()
             let cases = await db.collection('cases').find().toArray()
 
-            cases_details=[]
+            
             for(let witness of witnesses){
+                cases_details=[]
+                for(let c of witness.cases){
 
-                for(let c of cases){
 
-
-                    cases_details.push(await db.collection('cases').find({"_id":c}).toArray()
-                    )
+                    case_detail=await db.collection('cases').find({"_id":c}).toArray()
+                    cases_details.push(case_detail[0])
+                    
 
 
                 }
@@ -72,7 +73,7 @@ async function main() {
 
             // }
             res.status(200)
-            res.json([witnesses,cases])
+            res.json(witnesses)
 
         // } catch (e) {
         //     res.status(500)
