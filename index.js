@@ -33,15 +33,13 @@ async function main() {
 
     app.get('/cases', async (req, res) => {
 
-        // try {
+        try {
             let db = MongoUtil.getDB();
     
           
     
             let witnesses = await db.collection('witness').find().toArray()
-            let cases = await db.collection('cases').find().toArray()
-
-            
+                        
             for(let witness of witnesses){
                 cases_details=[]
                 for(let c of witness.cases){
@@ -72,15 +70,36 @@ async function main() {
 
 
             // }
+
+
+
             res.status(200)
             res.json(witnesses)
 
-        // } catch (e) {
-        //     res.status(500)
-        //     res.send(e)         
-        // }
+        } catch (e) {
+            res.status(500)
+            res.send(e)         
+        }
     })
 
+
+    app.get('/cases/:id', async (req, res) => {
+
+        try {
+
+            let cases_id = req.params.id
+
+
+            res.status(200)
+            res.json(witnesses)
+
+        } catch (e) {
+            res.status(500)
+            res.send(e)         
+        }
+
+
+    }
 
     // app.get('/sightings', async (req, res) => {
 
