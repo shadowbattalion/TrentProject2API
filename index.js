@@ -38,18 +38,27 @@ async function main() {
     
           
     
+            let witnesses = await db.collection('witness').find().toArray()
             let cases = await db.collection('cases').find().toArray()
-            // console.log(case)
-            let encounters=[]
-            for (let c of cases){
 
 
-                encounters.push(await db.collection('cases').find({"_id":c[])},{"sightings_description":1}).toArray())
 
 
-            }
+
+
+
+
+            // // console.log(case)
+            // let encounters=[]
+            // for (let c of cases){
+
+
+            //     encounters.push(await db.collection('cases').find({"_id":c[])},{"sightings_description":1}).toArray())
+
+
+            // }
             res.status(200)
-            res.json(encounters)
+            res.json([witnesses,cases])
 
         // } catch (e) {
         //     res.status(500)
