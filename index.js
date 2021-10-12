@@ -54,7 +54,7 @@ async function main() {
 
                 witness.cases=cases_details
 
-            }
+            } 
 
 
 
