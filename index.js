@@ -121,6 +121,22 @@ async function main() {
 
     })
 
+
+
+    app.post('/post_comment', async (req, res) => {
+
+         // try {
+            let db = MongoUtil.getDB()
+
+
+        // } catch (e) {
+        //     res.status(500)
+        //     res.send(e)         
+        // }
+
+
+    }
+
     // app.get('/sightings', async (req, res) => {
 
     //     try {
