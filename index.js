@@ -45,7 +45,7 @@ async function main() {
                 for(let c of witness.cases){
 
 
-                    case_detail=await db.collection('cases').find({"_id":c},{projection:{"entity_tags":0, "comment":0}}).toArray()
+                    case_detail=await db.collection('cases').find({"_id":c},{projection:{"entity_tags":0, "comments":0}}).toArray()
                     cases_details.push(case_detail[0])
                     
 
@@ -99,6 +99,16 @@ async function main() {
                 entity_tag_details.push(entity_tag_detail[0])
             }
             cases_detail[0].entity_tags=entity_tag_details
+
+
+            comment_details=[]
+            if(cases_detail[0].comments){
+                for(let comment of cases_detail[0].comments){
+                    comment_detail=await db.collection('comments').find({"_id":comment}).toArray()
+                    comment_details.push(comment_detail[0])
+                }
+            }
+            cases_detail[0].comments=comment_details
 
             res.status(200)
             res.json([cases_detail,witness])
