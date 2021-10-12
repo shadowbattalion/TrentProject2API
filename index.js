@@ -61,16 +61,7 @@ async function main() {
 
 
 
-            // // console.log(case)
-            // let encounters=[]
-            // for (let c of cases){
-
-
-            //     encounters.push(await db.collection('cases').find({"_id":c[])},{"sightings_description":1}).toArray())
-
-
-            // }
-
+            
 
 
             res.status(200)
@@ -85,21 +76,50 @@ async function main() {
 
     app.get('/cases/:id', async (req, res) => {
 
-        try {
+        // try {
+            let db = MongoUtil.getDB()
+
 
             let cases_id = req.params.id
+            let cases_detail = await db.collection('cases').find({"_id":ObjectId(cases_id)}).toArray()
+            let witness =  await db.collection('witness').find({"cases":ObjectId(cases_id)}).toArray()
+            
+        
+            encounters_details=[]
 
+            
+            for(let encounter of cases_detail[0].encounters){
+                
+
+
+                encounter_detail=await db.collection('encounters').find({"_id":encounter}).toArray()
+
+                
+
+
+
+                encounters_details.push(encounter_detail[0])
+                    
+
+
+            
+
+                
+
+            }
+
+            cases_detail[0].encounters=encounters_details
 
             res.status(200)
-            res.json(witnesses)
+            res.json([cases_detail,witness])
 
-        } catch (e) {
-            res.status(500)
-            res.send(e)         
-        }
+        // } catch (e) {
+        //     res.status(500)
+        //     res.send(e)         
+        // }
 
 
-    }
+    })
 
     // app.get('/sightings', async (req, res) => {
 
