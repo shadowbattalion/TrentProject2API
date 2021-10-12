@@ -45,7 +45,7 @@ async function main() {
                 for(let c of witness.cases){
 
 
-                    case_detail=await db.collection('cases').find({"_id":c}).toArray()
+                    case_detail=await db.collection('cases').find({"_id":c},{projection:{"entity_tags":0, "comment":0}}).toArray()
                     cases_details.push(case_detail[0])
                     
 
@@ -74,7 +74,7 @@ async function main() {
     })
 
 
-    app.get('/cases/:id', async (req, res) => {
+    app.get('/case/:id', async (req, res) => {
 
         // try {
             let db = MongoUtil.getDB()
@@ -85,30 +85,20 @@ async function main() {
             let witness =  await db.collection('witness').find({"cases":ObjectId(cases_id)}).toArray()
             
         
-            encounters_details=[]
-
-            
+            encounter_details=[]
             for(let encounter of cases_detail[0].encounters){
-                
-
-
                 encounter_detail=await db.collection('encounters').find({"_id":encounter}).toArray()
-
-                
-
-
-
-                encounters_details.push(encounter_detail[0])
-                    
-
-
-            
-
-                
-
+                encounter_details.push(encounter_detail[0])
             }
+            cases_detail[0].encounters=encounter_details
 
-            cases_detail[0].encounters=encounters_details
+
+            entity_tag_details=[]
+            for(let entity_tag of cases_detail[0].entity_tags){
+                entity_tag_detail=await db.collection('entity_tags').find({"_id":entity_tag},{projection:{"entity":1,"_id":0}}).toArray()
+                entity_tag_details.push(entity_tag_detail[0])
+            }
+            cases_detail[0].entity_tags=entity_tag_details
 
             res.status(200)
             res.json([cases_detail,witness])
