@@ -65,7 +65,7 @@ async function main() {
 
 
             res.status(200)
-            res.json(witnesses)
+            res.send(witnesses)//change
 
         } catch (e) {
             res.status(500)
@@ -127,6 +127,26 @@ async function main() {
 
          // try {
             let db = MongoUtil.getDB()
+            
+            let case_id=req.body.case_id
+            let content=req.body.content
+            
+
+        
+            let results = await db.collection('cases').updateOne({
+                _id: ObjectId(case_id)
+            }, {
+                '$set': {
+                    "_id":ObjectId(),
+                    "content":content,
+                    "date":""
+                }
+            })
+        
+            
+            res.status(200)
+            res.send("Comment Posted!")
+
 
 
         // } catch (e) {
@@ -135,7 +155,7 @@ async function main() {
         // }
 
 
-    }
+    })
 
     // app.get('/sightings', async (req, res) => {
 
