@@ -123,7 +123,7 @@ async function main() {
     })
 
 
-    //Case_id needed
+
     app.post('/post_comment', async (req, res) => {
 
         try {
@@ -141,7 +141,6 @@ async function main() {
             })
 
             let update_in_cases = await db.collection('cases').updateOne({ 
-                
                 "_id": ObjectId(case_id)
             }, {
                     $push: {
@@ -174,7 +173,8 @@ async function main() {
             let comment_id = req.params.id
             let content=req.body.content
 
-            console.log(comment_id,content)
+          
+
             let edit_comment = await db.collection('comments').updateOne({
                 "_id": ObjectId(comment_id)
                 
@@ -209,7 +209,7 @@ async function main() {
             let comment_id = req.params.id
             
                 
-            let deleted_comments = await db.collection('comments').remove({
+            let deleted_comments = await db.collection('comments').deleteOne({
                 "_id": ObjectId(comment_id)
             })
         
