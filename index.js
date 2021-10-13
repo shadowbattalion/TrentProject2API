@@ -200,23 +200,21 @@ async function main() {
 
     })
 
-    //Case_id needed
+    
     app.delete('/delete_comment/:id', async (req, res) => {
 
         try {
             let db = MongoUtil.getDB()
             
             let comment_id = req.params.id
-            let case_id = req.body.case_id
-        
-        
+            
+                
             let deleted_comments = await db.collection('comments').remove({
                 "_id": ObjectId(comment_id)
             })
         
-            let deleted_in_cases = await db.collection('cases').updateOne({ 
-                
-                "_id": ObjectId(case_id)
+            let deleted_in_cases = await db.collection('cases').updateOne({            
+                "comments": ObjectId(comment_id)
             }, {
                     "$pull": {
                         "comments": ObjectId(comment_id)
