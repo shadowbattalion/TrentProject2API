@@ -123,7 +123,7 @@ async function main() {
     })
 
 
-
+    //Case_id required in body
     app.post('/post_comment', async (req, res) => {
 
         try {
@@ -235,32 +235,38 @@ async function main() {
 
     })
 
+    //Add_case format:
+    // [
+    //     {
+    //     "name":"test"
+    //     },
+    //     {
+    //       "color":"red",
+    //       "entity_tags":[]
+    //     },
+    //     [
+    //       {},{}
+    //     ]
+    //   ]
 
-    app.post('/add_case/:id', async (req, res) => {
+    app.post('/add_case', async (req, res) => {
 
         try {
             let db = MongoUtil.getDB()
             
-            let comment_id = req.params.id
-            let case_id = req.body.case_id
+            
+            let case_id = new ObjectId()
+            let user_input = req.body
+
+            
+           
         
         
-            let deleted_comments = await db.collection('comments').remove({
-                "_id": ObjectId(comment_id)
-            })
         
-            let deleted_in_cases = await db.collection('cases').updateOne({ 
-                
-                "_id": ObjectId(case_id)
-            }, {
-                    $pull: {
-                        "comments": ObjectId(comment_id)
-                    }
-            })
         
             
             res.status(200)
-            res.send({"comment_deleted":deleted_comments, "cases_updated":deleted_in_cases})
+            res.send(user_input)
 
 
 
