@@ -3,6 +3,8 @@ const cors = require('cors')
 require('dotenv').config()
 const MongoUtil = require('./MongoUtil.js')
 const ObjectId = require('mongodb').ObjectId;
+const cookieParser = require('cookie-parser');
+
 
 let app = express();
 
@@ -15,6 +17,43 @@ app.use(express.json());
 // enable CORS so that our React applications
 // hosted on a domain name can use it
 app.use(cors());
+
+app.use(cookieParser());
+
+// set a cookie
+app.use(async function (req, res, next) {
+    // check if client sent cookie
+    var cookie = req.cookies.cookieName;
+    if (cookie === undefined) {
+      // no: set a new cookie
+      var randomNumber=new ObjectId()
+      res.cookie('cookieName',randomNumber, { maxAge: 900000, httpOnly: true });
+      console.log('cookie created successfully');
+
+
+      await MongoUtil.connect(process.env.MONGO_URI, "ghost_sightings")
+      let db = MongoUtil.getDB();
+
+    //   let update_in_cases = await db.collection('cases').updateOne({ 
+    //     "_id": ObjectId(case_id)
+    // }, {
+    //         $push: {
+    //             "comments": ObjectId(comment_id)
+    //         }
+    // })
+      
+    db.close()
+     
+
+    } else {
+      // yes, cookie was already present 
+      console.log('cookie exists', cookie);
+    } 
+    next(); // <-- important!
+  });
+  
+  // let static middleware do its job
+  app.use(express.static(__dirname + '/public'));
 
 async function main() {
 
@@ -36,7 +75,7 @@ async function main() {
         try {
             let db = MongoUtil.getDB();
     
-          
+            console.log(req.cookies.cookieName)
     
             let witnesses = await db.collection('witness').find().toArray()
                         
