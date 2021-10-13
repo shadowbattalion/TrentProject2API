@@ -123,7 +123,7 @@ async function main() {
     })
 
 
-
+    //Case_id needed
     app.post('/post_comment', async (req, res) => {
 
         try {
@@ -200,7 +200,45 @@ async function main() {
 
     })
 
+    //Case_id needed
     app.delete('/delete_comment/:id', async (req, res) => {
+
+        try {
+            let db = MongoUtil.getDB()
+            
+            let comment_id = req.params.id
+            let case_id = req.body.case_id
+        
+        
+            let deleted_comments = await db.collection('comments').remove({
+                "_id": ObjectId(comment_id)
+            })
+        
+            let deleted_in_cases = await db.collection('cases').updateOne({ 
+                
+                "_id": ObjectId(case_id)
+            }, {
+                    "$pull": {
+                        "comments": ObjectId(comment_id)
+                    }
+            })
+        
+            
+            res.status(200)
+            res.send({"comment_deleted":deleted_comments, "cases_updated":deleted_in_cases})
+
+
+
+        } catch (e) {
+            res.status(500)
+            res.send(e)         
+        }
+
+
+    })
+
+
+    app.post('/add_case/:id', async (req, res) => {
 
         try {
             let db = MongoUtil.getDB()
