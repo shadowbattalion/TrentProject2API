@@ -87,21 +87,28 @@ async function main() {
             
         
             encounter_details=[]
-            for(let encounter of cases_detail.encounters){
-                encounter_detail=await db.collection('encounters').findOne({"_id":encounter})
+            for(let encounter_id of cases_detail.encounters){
+                encounter_detail=await db.collection('encounters').findOne({"_id":encounter_id})
                 encounter_details.push(encounter_detail)
             }
             cases_detail.encounters=encounter_details
 
 
             entity_tag_details=[]
-            for(let entity_tag of cases_detail.entity_tags){
-                entity_tag_detail=await db.collection('entity_tags').findOne({"_id":entity_tag},{"projection":{"entity":1,"_id":0}})
+            for(let entity_tag_id of cases_detail.entity_tags){
+                entity_tag_detail=await db.collection('entity_tags').findOne({"_id":entity_tag_id},{"projection":{"entity":1,"_id":0}})
                 entity_tag_details.push(entity_tag_detail)
             }
             cases_detail.entity_tags=entity_tag_details
 
-
+            comment_details=[]
+            if(cases_detail.comments){
+                for(let comment_id of cases_detail.comments){
+                    comment_detail=await db.collection('comments').findOne({"_id":comment_id})
+                    comment_details.push(comment_detail)
+                }
+            }
+            cases_detail.comments=comment_details
         
 
             res.status(200)
@@ -122,26 +129,29 @@ async function main() {
         try {
             let db = MongoUtil.getDB()
             
-            let case_id=req.body.case_id
-            let content=req.body.content
+            let case_id = req.body.case_id
+            let comment_id = new ObjectId()
+            let content = req.body.content
             
 
         
-            let results = await db.collection('cases').updateOne({
-                _id: ObjectId(case_id)
-            }, {
-                "$push":{
-                    "comments":{
-                      "_id": new ObjectId(),
-                      "content": content
-                    }
-                  }
-            
+            let insert_new_comment = await db.collection('comments').insertOne({
+                "_id": comment_id,
+                "content": content
             })
+
+            let update_cases = await db.collection('cases').updateOne({ 
+                
+                "_id": ObjectId(case_id)
+            },  {
+                    $push: {
+                        "comments": ObjectId(comment_id)
+                    }
+                })
         
             
             res.status(200)
-            res.send("Comment Posted!")
+            res.send({"new_comment_inserted":insert_new_comment, "cases_updated":update_cases})
 
 
 
@@ -154,31 +164,31 @@ async function main() {
     })
 
 
-    app.put('/edit_comment', async (req, res) => {
+    
+    app.put('/edit_comment/:id', async (req, res) => {
 
         try {
             let db = MongoUtil.getDB()
             
-            let case_id=req.body.case_id
+            
+            let comment_id = req.params.id
             let content=req.body.content
-            
 
-        
-            let results = await db.collection('cases').updateOne({
-                _id: ObjectId(case_id)
-            }, {
-                "$push":{
-                    "comments":{
-                      "_id": new ObjectId(),
-                      "content": content
-                    }
-                  }
-            
+            console.log(comment_id,content)
+            let edit_comment = await db.collection('comments').updateOne({
+                "_id": ObjectId(comment_id)
+                
+            },{
+                "$set":{
+                    "content": content
+                }
             })
+
+            
         
             
             res.status(200)
-            res.send("Comment Posted!")
+            res.send(edit_comment)
 
 
 
@@ -190,6 +200,34 @@ async function main() {
 
     })
 
+    app.delete('/delete_comment/:id', async (req, res) => {
+
+        try {
+            let db = MongoUtil.getDB()
+            
+            // let case_id=req.body.case_id
+            let comment_id = req.params.id
+    
+            
+
+        
+            let results = await db.collection('cases').remove({
+                "comments._id": ObjectId(comment_id)
+            })
+        
+            
+            res.status(200)
+            res.send("Comment Deleted!")
+
+
+
+        } catch (e) {
+            res.status(500)
+            res.send(e)         
+        }
+
+
+    })
 
 
 
