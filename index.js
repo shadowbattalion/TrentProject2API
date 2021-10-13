@@ -45,8 +45,8 @@ async function main() {
                 for(let c of witness.cases){
 
 
-                    case_detail=await db.collection('cases').find({"_id":c},{projection:{"entity_tags":0, "comments":0}}).toArray()
-                    cases_details.push(case_detail[0])
+                    case_detail=await db.collection('cases').findOne({"_id":c},{"projection":{"entity_tags":0,"comments":0}})
+                    cases_details.push(case_detail)
                     
 
 
@@ -65,7 +65,8 @@ async function main() {
 
 
             res.status(200)
-            res.send(witnesses)//change
+            res.json(witnesses)
+            
 
         } catch (e) {
             res.status(500)
@@ -76,47 +77,40 @@ async function main() {
 
     app.get('/case/:id', async (req, res) => {
 
-        // try {
+        try {
             let db = MongoUtil.getDB()
 
 
             let cases_id = req.params.id
-            let cases_detail = await db.collection('cases').find({"_id":ObjectId(cases_id)}).toArray()
+            let cases_detail = await db.collection('cases').findOne({"_id":ObjectId(cases_id)})
             let witness =  await db.collection('witness').find({"cases":ObjectId(cases_id)}).toArray()
             
         
             encounter_details=[]
-            for(let encounter of cases_detail[0].encounters){
-                encounter_detail=await db.collection('encounters').find({"_id":encounter}).toArray()
-                encounter_details.push(encounter_detail[0])
+            for(let encounter of cases_detail.encounters){
+                encounter_detail=await db.collection('encounters').findOne({"_id":encounter})
+                encounter_details.push(encounter_detail)
             }
-            cases_detail[0].encounters=encounter_details
+            cases_detail.encounters=encounter_details
 
 
             entity_tag_details=[]
-            for(let entity_tag of cases_detail[0].entity_tags){
-                entity_tag_detail=await db.collection('entity_tags').find({"_id":entity_tag},{projection:{"entity":1,"_id":0}}).toArray()
-                entity_tag_details.push(entity_tag_detail[0])
+            for(let entity_tag of cases_detail.entity_tags){
+                entity_tag_detail=await db.collection('entity_tags').findOne({"_id":entity_tag},{"projection":{"entity":1,"_id":0}})
+                entity_tag_details.push(entity_tag_detail)
             }
-            cases_detail[0].entity_tags=entity_tag_details
+            cases_detail.entity_tags=entity_tag_details
 
 
-            comment_details=[]
-            if(cases_detail[0].comments){
-                for(let comment of cases_detail[0].comments){
-                    comment_detail=await db.collection('comments').find({"_id":comment}).toArray()
-                    comment_details.push(comment_detail[0])
-                }
-            }
-            cases_detail[0].comments=comment_details
+        
 
             res.status(200)
             res.json([cases_detail,witness])
 
-        // } catch (e) {
-        //     res.status(500)
-        //     res.send(e)         
-        // }
+        } catch (e) {
+            res.status(500)
+            res.send(e)         
+        }
 
 
     })
@@ -125,7 +119,7 @@ async function main() {
 
     app.post('/post_comment', async (req, res) => {
 
-         // try {
+        try {
             let db = MongoUtil.getDB()
             
             let case_id=req.body.case_id
@@ -136,11 +130,13 @@ async function main() {
             let results = await db.collection('cases').updateOne({
                 _id: ObjectId(case_id)
             }, {
-                '$set': {
-                    "_id":ObjectId(),
-                    "content":content,
-                    "date":""
-                }
+                "$push":{
+                    "comments":{
+                      "_id": new ObjectId(),
+                      "content": content
+                    }
+                  }
+            
             })
         
             
@@ -149,13 +145,53 @@ async function main() {
 
 
 
-        // } catch (e) {
-        //     res.status(500)
-        //     res.send(e)         
-        // }
+        } catch (e) {
+            res.status(500)
+            res.send(e)         
+        }
 
 
     })
+
+
+    app.put('/edit_comment', async (req, res) => {
+
+        try {
+            let db = MongoUtil.getDB()
+            
+            let case_id=req.body.case_id
+            let content=req.body.content
+            
+
+        
+            let results = await db.collection('cases').updateOne({
+                _id: ObjectId(case_id)
+            }, {
+                "$push":{
+                    "comments":{
+                      "_id": new ObjectId(),
+                      "content": content
+                    }
+                  }
+            
+            })
+        
+            
+            res.status(200)
+            res.send("Comment Posted!")
+
+
+
+        } catch (e) {
+            res.status(500)
+            res.send(e)         
+        }
+
+
+    })
+
+
+
 
     // app.get('/sightings', async (req, res) => {
 
