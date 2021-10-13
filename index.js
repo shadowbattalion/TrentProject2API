@@ -136,22 +136,22 @@ async function main() {
 
         
             let insert_new_comment = await db.collection('comments').insertOne({
-                "_id": comment_id,
+                "_id": ObjectId(comment_id),
                 "content": content
             })
 
-            let update_cases = await db.collection('cases').updateOne({ 
+            let update_in_cases = await db.collection('cases').updateOne({ 
                 
                 "_id": ObjectId(case_id)
-            },  {
+            }, {
                     $push: {
                         "comments": ObjectId(comment_id)
                     }
-                })
+            })
         
             
             res.status(200)
-            res.send({"new_comment_inserted":insert_new_comment, "cases_updated":update_cases})
+            res.send({"new_comment_inserted":insert_new_comment, "cases_updated":update_in_cases})
 
 
 
@@ -205,19 +205,26 @@ async function main() {
         try {
             let db = MongoUtil.getDB()
             
-            // let case_id=req.body.case_id
             let comment_id = req.params.id
-    
-            
-
+            let case_id = req.body.case_id
         
-            let results = await db.collection('cases').remove({
-                "comments._id": ObjectId(comment_id)
+        
+            let deleted_comments = await db.collection('comments').remove({
+                "_id": ObjectId(comment_id)
+            })
+        
+            let deleted_in_cases = await db.collection('cases').updateOne({ 
+                
+                "_id": ObjectId(case_id)
+            }, {
+                    $pull: {
+                        "comments": ObjectId(comment_id)
+                    }
             })
         
             
             res.status(200)
-            res.send("Comment Deleted!")
+            res.send({"comment_deleted":deleted_comments, "cases_updated":deleted_in_cases})
 
 
 
