@@ -237,17 +237,43 @@ async function main() {
 
     //Add_case format:
     // [
-    //     {
-    //     "name":"test"
-    //     },
-    //     {
-    //       "color":"red",
-    //       "entity_tags":[]
-    //     },
+    //      {
+    //        "occupation":"NSMan",
+    //        "gender":"male",
+    //        "age":"23",
+    //        "company":"",
+    //        "investigator":false,
+    //        "email":"test@this.com"
+    //      },
+    //      {
+    //     "case_title":"Ghost in Woodlands",
+    //     "generic_description":"This is a scary ghost adventure",
+    //     "type_of_activity":"Ghost-Hunting",
+    //     "rating":3,
+    //     "location":"Woodlands Drive 40",
+    //     "coordinates":[21.2, 32.4],
+    //     "date":"27-2034",
+    //     "entity_tags":["616509e7154896339f81b009","616509f8154896339f81b00a"]
+    //      },
     //     [
-    //       {},{}
+    //      {
+    //     "images":["http://test.com"],
+    //     "sightings_description":"The ghost can be seen here",
+    //     "equipment_used":["phone","camera"],
+    //     "contact_type":["visual"],
+    //     "number_of_entities":3,
+    //     "time_of_encounter":"midday"
+    //      },
+    //      {
+    //     "images":["http://test.com"],
+    //     "sightings_description":"The ghost can be seen here",
+    //     "equipment_used":["phone","camera"],
+    //     "contact_type":["visual"],
+    //     "number_of_entities":3,
+    //     "time_of_encounter":"midday"
+    //      }
     //     ]
-    //   ]
+    //  ]
 
     app.post('/add_case', async (req, res) => {
 
