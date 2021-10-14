@@ -428,7 +428,7 @@ async function main() {
 
     app.delete('/delete_case/:id', async (req, res) => {
 
-        try {
+        // try {
             let db = MongoUtil.getDB()
             
             let case_id= req.params.id
@@ -451,13 +451,45 @@ async function main() {
 
 
             encounter_ids=ids_to_delete.encounters
-            comments_ids=ids_to_delete.comments
+            comment_ids=ids_to_delete.comments
 
 
-            let deleted_comments = await db.collection('comments').deleteOne({
-                "_id": ObjectId(comment_id)
+
+            if(encounter_ids){
+                for(let id of encounter_ids){
+
+                    await db.collection('encounters').deleteOne({
+                        "_id": id
+                    })
+
+                }
+            }
+
+            if(comment_ids){
+                for(let id of comment_ids){
+
+                    await db.collection('comments').deleteOne({
+                        "_id": id
+                    })
+
+                }
+
+            }
+
+            
+            let deleted_in_cases = await db.collection('witness').updateOne({            
+                "cases": ObjectId(case_id)
+            }, {
+                    "$pull": {
+                        "cases": ObjectId(case_id)
+                    }
             })
+            
 
+
+            await db.collection('cases').deleteOne({
+                "_id": ObjectId(case_id)
+            })
 
 
             
@@ -546,10 +578,10 @@ async function main() {
 
 
 
-        } catch (e) {
-            res.status(500)
-            res.send(e)         
-        }
+        // } catch (e) {
+        //     res.status(500)
+        //     res.send(e)         
+        // }
 
 
     })
