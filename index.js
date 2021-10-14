@@ -472,13 +472,14 @@ async function main() {
 
     app.post('/update_case/:id', async (req, res) => {
 
-        try {
+        // try {
             let db = MongoUtil.getDB()
             
             let user_input = req.body
 
             let case_id=req.params.id
 
+            //cases
             await db.collection('cases').updateOne({
                 "_id": ObjectId(case_id)
             }, {
@@ -502,17 +503,38 @@ async function main() {
 
             for(let encounter of user_input.encounters){
 
-                let encounter_id=new ObjectId()
-                encounters_id.push(encounter_id)
-                await db.collection('encounters').insertOne({
-                        "_id": encounter_id,
-                        "images":encounter.images,
-                        "sightings_description":encounter.sightings_description,
-                        "equipment_used":encounter.equipment_used,
-                        "contact_type":encounter.contact_type,
-                        "number_of_entities":encounter.number_of_entities,
-                        "time_of_encounter":encounter.time_of_encounter
-                })
+                if("id" in encounter){
+
+                    await db.collection('encounters').updateOne({ 
+                        "_id": ObjectId(encounter.id)
+                    }, {
+                            $set: {
+                                "images":encounter.images,
+                                "sightings_description":encounter.sightings_description,
+                                "equipment_used":encounter.equipment_used,
+                                "contact_type":encounter.contact_type,
+                                "number_of_entities":encounter.number_of_entities,
+                                "time_of_encounter":encounter.time_of_encounter
+                            }
+                    })
+
+
+
+                }else{
+
+                    let encounter_id=new ObjectId()
+                    encounters_id.push(encounter_id)
+                    await db.collection('encounters').insertOne({
+                            "_id": encounter_id,
+                            "images":encounter.images,
+                            "sightings_description":encounter.sightings_description,
+                            "equipment_used":encounter.equipment_used,
+                            "contact_type":encounter.contact_type,
+                            "number_of_entities":encounter.number_of_entities,
+                            "time_of_encounter":encounter.time_of_encounter
+                    })
+
+                }
 
             }
 
@@ -530,43 +552,7 @@ async function main() {
             
                 
 
-            // witness
-
-            let email = await db.collection('witness').findOne({"email":user_input.witness.email})
             
-
-            if(email===null){
-                
-                let witness_id = new ObjectId()
-
-                await db.collection('witness').insertOne({ 
-                    "_id": witness_id,
-                    "display_name":user_input.witness.display_name,
-                    "occupation":user_input.witness.occupation,
-                    "gender":user_input.witness.gender,
-                    "age":user_input.witness.age,
-                    "company":user_input.witness.company,
-                    "investigator":user_input.witness.investigator,
-                    "email":user_input.witness.email,
-                    "cases":[case_id]
-                        
-                })
-
-
-            }else{
-
-                
-                await db.collection('witness').updateOne({ 
-                    "email": user_input.witness.email
-                }, {
-                        $push: {
-                            "cases":case_id
-                        }
-                })
-
-
-
-            }
            
         
         
@@ -574,14 +560,14 @@ async function main() {
         
             
             res.status(200)
-            res.send("New case added!")
+            res.send("Case updated!")
 
 
 
-        } catch (e) {
-            res.status(500)
-            res.send(e)         
-        }
+        // } catch (e) {
+        //     res.status(500)
+        //     res.send(e)         
+        // }
 
 
     })
