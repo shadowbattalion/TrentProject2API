@@ -22,36 +22,14 @@ app.use(cookieParser());
 
 // set a cookie
 app.use(async function (req, res, next) {
-    //connect to db
-    await MongoUtil.connect(process.env.MONGO_URI, "ghost_sightings")
-    let db = MongoUtil.getDB();
     // check if client sent cookie
     let cookie = req.cookies.cookieName
-    //check if cookie in database
-    let cookie_in_db = await db.collection('witness').findOne({"_id":ObjectId(req.cookies.cookieName)})
-
-    if (cookie === undefined || cookie_in_db===null) {
+   
+    if (cookie === undefined) {
         // no: set a new cookie
         let randomNumber=new ObjectId()
         res.cookie('cookieName',randomNumber, { maxAge: 900000, httpOnly: true });
         console.log('cookie created successfully');
-
-        let new_cookie = await db.collection('witness').insertOne({
-            "_id": randomNumber,
-            "registered":false,
-            "display_name":"",
-            "occupation":"",
-            "gender":"",
-            "age":"",
-            "company":"",
-            "investigator":false,
-            "email":"",
-            "cases":[]
-        })
-      
-  
-        console.log(new_cookie)
-
     } else {
         // yes, cookie was already present 
         console.log('cookie exists', cookie);
@@ -283,37 +261,37 @@ async function main() {
 
     
 
-    app.get("/check_registered", async(req,res)=>{
+    // app.get("/check_registered", async(req,res)=>{
 
-        try {
-            let db = MongoUtil.getDB()
+    //     try {
+    //         let db = MongoUtil.getDB()
             
-            let result=false
+    //         let result=false
             
             
 
-            if(req.cookies.cookieName){
+    //         if(req.cookies.cookieName){
 
-                let registered = await db.collection('witness').findOne({"_id":ObjectId(req.cookies.cookieName)},{"projection":{"registered":1}})
-                result=registered.registered?true:false
+    //             let registered = await db.collection('witness').findOne({"_id":ObjectId(req.cookies.cookieName)})
+    //             result=registered.registered?true:false
 
-            }
+    //         }
 
            
         
             
-            res.status(200)
-            res.send(result)
+    //         res.status(200)
+    //         res.send(result)
 
 
 
-        } catch (e) {
-            res.status(500)
-            res.send(e)         
-        }
+    //     } catch (e) {
+    //         res.status(500)
+    //         res.send(e)         
+    //     }
 
 
-    })
+    // })
 
 
     // Add_case format:
@@ -360,7 +338,7 @@ async function main() {
 
     app.post('/add_case', async (req, res) => {
 
-        try {
+        // try {
             let db = MongoUtil.getDB()
             
             let user_input = req.body
@@ -393,31 +371,35 @@ async function main() {
             let case_id = new ObjectId()
 
             await db.collection('cases').insertOne({
-                    "_id": cases_id,
-                    "case_title":user_input.cases.case_title,
-                    "generic_description":user_input.cases.generic_description,
-                    "type_of_activity":user_input.cases.type_of_activity,
-                    "rating":user_input.cases.rating,
-                    "location":user_input.cases.location,
-                    "coordinates":user_input.cases.coordinates,
-                    "date":user_input.cases.date,
-                    "entity_tags":user_input.cases.entity_tags, //remember to resolve this with ObjectId().
+                    "_id": case_id,
+                    "case_title":user_input.case.case_title,
+                    "generic_description":user_input.case.generic_description,
+                    "type_of_activity":user_input.case.type_of_activity,
+                    "rating":user_input.case.rating,
+                    "location":user_input.case.location,
+                    "coordinates":user_input.case.coordinates,
+                    "date":user_input.case.date,
+                    "entity_tags":user_input.case.entity_tags, //remember to resolve this with ObjectId().
                     "encounters":encounters_id,
                     "comments":[]
 
             })
 
 
+            
+            
+                
 
             // witness
-            
-            if("witness" in user_input){
 
-                await db.collection('witness').updateOne({ 
-                    "_id": ObjectId(case_id)
+            let registered = await db.collection('witness').findOne({"_id":ObjectId(req.cookies.cookieName)})
+            
+            if(registered===null){
+                console.log(req.cookies.cookieName)
+                let test = await db.collection('witness').updateOne({ 
+                    "_id": ObjectId(req.cookies.cookieName)
                 }, {
                         $set: {
-                            "registered":true,
                             "display_name":user_input.witness.display_name,
                             "occupation":user_input.witness.occupation,
                             "gender":user_input.witness.gender,
@@ -429,7 +411,7 @@ async function main() {
                         }
                 })
 
-
+                console.log(test)
 
 
 
@@ -438,7 +420,7 @@ async function main() {
 
 
                 await db.collection('witness').updateOne({ 
-                    "_id": ObjectId(case_id)
+                    "_id": ObjectId(req.cookies.cookieName)
                 }, {
                         $push: {
                             "cases":[case_id]
@@ -459,10 +441,10 @@ async function main() {
 
 
 
-        } catch (e) {
-            res.status(500)
-            res.send(e)         
-        }
+        // } catch (e) {
+        //     res.status(500)
+        //     res.send(e)         
+        // }
 
 
     })
