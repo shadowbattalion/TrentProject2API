@@ -429,7 +429,7 @@ async function main() {
 
      // update_case format:
     // {
-    //
+    
     //     "case":     {
     //                     "case_title":"Ghost in Woodlands",
     //                     "generic_description":"This is a scary ghost adventure",
@@ -476,7 +476,7 @@ async function main() {
             let db = MongoUtil.getDB()
             
             let user_input = req.body
-
+            console.log(user_input)
             let case_id=req.params.id
 
             //cases
