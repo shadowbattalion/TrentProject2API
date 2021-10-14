@@ -470,7 +470,7 @@ async function main() {
     // }
 
 
-    app.post('/update_case/:id', async (req, res) => {
+    app.put('/update_case/:id', async (req, res) => {
 
         // try {
             let db = MongoUtil.getDB()
