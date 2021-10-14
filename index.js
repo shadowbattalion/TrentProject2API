@@ -426,6 +426,170 @@ async function main() {
 
     })
 
+
+     // update_case format:
+    // {
+    //
+    //     "case":     {
+    //                     "case_title":"Ghost in Woodlands",
+    //                     "generic_description":"This is a scary ghost adventure",
+    //                     "type_of_activity":"Ghost-Hunting",
+    //                     "rating":3,
+    //                     "location":"Woodlands Drive 40",
+    //                     "coordinates":[21.2, 32.4],
+    //                     "date":"27-2034",
+    //                     "entity_tags":["616509e7154896339f81b009","616509f8154896339f81b00a"]
+    //                 },
+    //     "encounters":[
+    //                    {
+    //                         "id":"6168245cce90d6d9d1afd5cd",
+    //                         "images":["http://test.com"],
+    //                         "sightings_description":"The ghost can everywhere",
+    //                         "equipment_used":["phone","camera"],
+    //                         "contact_type":["visual"],
+    //                         "number_of_entities":3,
+    //                         "time_of_encounter":"midday"
+    //                     },
+    //                     {
+    //                         "images":["http://test.com"],
+    //                         "sightings_description":"The ghost can be seen here",
+    //                         "equipment_used":["phone","camera"],
+    //                         "contact_type":["visual"],
+    //                         "number_of_entities":3,
+    //                         "time_of_encounter":"midday"
+    //                     },
+    //                     {
+    //                         "images":["http://test.com"],
+    //                         "sightings_description":"The ghost can be seen here",
+    //                         "equipment_used":["phone","camera"],
+    //                         "contact_type":["visual"],
+    //                         "number_of_entities":3,
+    //                         "time_of_encounter":"midday"
+    //                     }
+    //                 ]
+    // }
+
+
+    app.post('/update_case/:id', async (req, res) => {
+
+        try {
+            let db = MongoUtil.getDB()
+            
+            let user_input = req.body
+
+            let case_id=req.params.id
+
+            await db.collection('cases').updateOne({
+                "_id": ObjectId(case_id)
+            }, {
+                '$set': {
+                    "case_title":user_input.case.case_title,
+                    "generic_description":user_input.case.generic_description,
+                    "type_of_activity":user_input.case.type_of_activity,
+                    "rating":user_input.case.rating,
+                    "location":user_input.case.location,
+                    "coordinates":user_input.case.coordinates,
+                    "date":user_input.case.date,
+                    "entity_tags":user_input.case.entity_tags.map(tag=>ObjectId(tag))
+                }
+            })
+        
+
+
+         
+            //encounters
+            let encounters_id=[]
+
+            for(let encounter of user_input.encounters){
+
+                let encounter_id=new ObjectId()
+                encounters_id.push(encounter_id)
+                await db.collection('encounters').insertOne({
+                        "_id": encounter_id,
+                        "images":encounter.images,
+                        "sightings_description":encounter.sightings_description,
+                        "equipment_used":encounter.equipment_used,
+                        "contact_type":encounter.contact_type,
+                        "number_of_entities":encounter.number_of_entities,
+                        "time_of_encounter":encounter.time_of_encounter
+                })
+
+            }
+
+
+            await db.collection('cases').updateOne({ 
+                "_id": ObjectId(case_id)
+            }, {
+                    $push: {
+                        "encounters":{$each: encounters_id}
+                    }
+            })
+
+
+            
+            
+                
+
+            // witness
+
+            let email = await db.collection('witness').findOne({"email":user_input.witness.email})
+            
+
+            if(email===null){
+                
+                let witness_id = new ObjectId()
+
+                await db.collection('witness').insertOne({ 
+                    "_id": witness_id,
+                    "display_name":user_input.witness.display_name,
+                    "occupation":user_input.witness.occupation,
+                    "gender":user_input.witness.gender,
+                    "age":user_input.witness.age,
+                    "company":user_input.witness.company,
+                    "investigator":user_input.witness.investigator,
+                    "email":user_input.witness.email,
+                    "cases":[case_id]
+                        
+                })
+
+
+            }else{
+
+                
+                await db.collection('witness').updateOne({ 
+                    "email": user_input.witness.email
+                }, {
+                        $push: {
+                            "cases":case_id
+                        }
+                })
+
+
+
+            }
+           
+        
+        
+        
+        
+            
+            res.status(200)
+            res.send("New case added!")
+
+
+
+        } catch (e) {
+            res.status(500)
+            res.send(e)         
+        }
+
+
+    })
+
+
+
+
+
     app.delete('/delete_case/:id', async (req, res) => {
 
         try {
