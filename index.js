@@ -18,27 +18,7 @@ app.use(express.json());
 // hosted on a domain name can use it
 app.use(cors());
 
-app.use(cookieParser());
 
-// set a cookie
-app.use(async function (req, res, next) {
-    // check if client sent cookie
-    let cookie = req.cookies.cookieName
-   
-    if (cookie === undefined) {
-        // no: set a new cookie
-        cookie_random_number=new ObjectId()
-        res.cookie('cookieName',cookie_random_number, { maxAge: 900000, httpOnly: true });
-        console.log('cookie created successfully');
-    } else {
-        // yes, cookie was already present 
-        console.log('cookie exists', cookie);
-    } 
-    next(); // <-- important!
-});
-  
-// let static middleware do its job
-app.use(express.static(__dirname + '/public'));
 
 async function main() {
 
@@ -392,13 +372,15 @@ async function main() {
 
             // witness
 
-            let registered = await db.collection('witness').findOne({"_id":ObjectId(req.cookies.cookieName)})
+            let email = await db.collection('witness').findOne({"email":user_input.witness.email})
             
-            if(registered===null){
-                console.log(req.cookies.cookieName)
-                console.log(cookie_random_number)
-                let test = await db.collection('witness').insertOne({ 
-                    "_id": cookie_random_number,
+
+            if(email===null){
+                
+                let witness_id = new ObjectId()
+
+                await db.collection('witness').insertOne({ 
+                    "_id": witness_id,
                     "display_name":user_input.witness.display_name,
                     "occupation":user_input.witness.occupation,
                     "gender":user_input.witness.gender,
@@ -413,9 +395,9 @@ async function main() {
 
             }else{
 
-                console.log("test")
+                
                 await db.collection('witness').updateOne({ 
-                    "_id": ObjectId(req.cookies.cookieName)
+                    "email": user_input.witness.email
                 }, {
                         $push: {
                             "cases":case_id
@@ -444,6 +426,115 @@ async function main() {
 
     })
 
+    app.delete('/delete_case/:email', async (req, res) => {
+
+        try {
+            let db = MongoUtil.getDB()
+            
+            let user_input = req.body
+
+         
+            //encounters
+            let encounters_id=[]
+
+            for(let encounter of user_input.encounters){
+
+                let encounter_id=new ObjectId()
+                encounters_id.push(encounter_id)
+                await db.collection('encounters').insertOne({
+                        "_id": encounter_id,
+                        "images":encounter.images,
+                        "sightings_description":encounter.sightings_description,
+                        "equipment_used":encounter.equipment_used,
+                        "contact_type":encounter.contact_type,
+                        "number_of_entities":encounter.number_of_entities,
+                        "time_of_encounter":encounter.time_of_encounter
+                })
+
+
+
+
+            }
+
+            //case
+
+            let case_id = new ObjectId()
+
+            await db.collection('cases').insertOne({
+                    "_id": case_id,
+                    "case_title":user_input.case.case_title,
+                    "generic_description":user_input.case.generic_description,
+                    "type_of_activity":user_input.case.type_of_activity,
+                    "rating":user_input.case.rating,
+                    "location":user_input.case.location,
+                    "coordinates":user_input.case.coordinates,
+                    "date":user_input.case.date,
+                    "entity_tags":user_input.case.entity_tags.map(tag=>ObjectId(tag)),
+                    "encounters":encounters_id,
+                    "comments":[]
+
+            })
+
+
+            
+            
+                
+
+            // witness
+
+            let email = await db.collection('witness').findOne({"email":user_input.witness.email})
+            
+
+            if(email===null){
+                
+                let witness_id = new ObjectId()
+
+                await db.collection('witness').insertOne({ 
+                    "_id": witness_id,
+                    "display_name":user_input.witness.display_name,
+                    "occupation":user_input.witness.occupation,
+                    "gender":user_input.witness.gender,
+                    "age":user_input.witness.age,
+                    "company":user_input.witness.company,
+                    "investigator":user_input.witness.investigator,
+                    "email":user_input.witness.email,
+                    "cases":[case_id]
+                        
+                })
+
+
+            }else{
+
+                
+                await db.collection('witness').updateOne({ 
+                    "email": user_input.witness.email
+                }, {
+                        $push: {
+                            "cases":case_id
+                        }
+                })
+
+
+
+            }
+           
+        
+        
+        
+        
+            
+            res.status(200)
+            res.send("New case added!")
+
+
+
+        } catch (e) {
+            res.status(500)
+            res.send(e)         
+        }
+
+
+    })
 
 
     // app.get('/sightings', async (req, res) => {
