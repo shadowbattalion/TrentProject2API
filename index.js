@@ -426,97 +426,115 @@ async function main() {
 
     })
 
-    app.delete('/delete_case/:email', async (req, res) => {
+    app.delete('/delete_case/:id', async (req, res) => {
 
         try {
             let db = MongoUtil.getDB()
             
-            let user_input = req.body
+            let case_id= req.params.id
 
-         
-            //encounters
-            let encounters_id=[]
-
-            for(let encounter of user_input.encounters){
-
-                let encounter_id=new ObjectId()
-                encounters_id.push(encounter_id)
-                await db.collection('encounters').insertOne({
-                        "_id": encounter_id,
-                        "images":encounter.images,
-                        "sightings_description":encounter.sightings_description,
-                        "equipment_used":encounter.equipment_used,
-                        "contact_type":encounter.contact_type,
-                        "number_of_entities":encounter.number_of_entities,
-                        "time_of_encounter":encounter.time_of_encounter
-                })
+            console.log(case_id)
+            let ids_to_delete = await db.collection('cases').findOne({
+                "_id": ObjectId(case_id)
+            },{
+                "projection":{
+                    
+                    comments:1,
+                    encounters:1
 
 
-
-
-            }
-
-            //case
-
-            let case_id = new ObjectId()
-
-            await db.collection('cases').insertOne({
-                    "_id": case_id,
-                    "case_title":user_input.case.case_title,
-                    "generic_description":user_input.case.generic_description,
-                    "type_of_activity":user_input.case.type_of_activity,
-                    "rating":user_input.case.rating,
-                    "location":user_input.case.location,
-                    "coordinates":user_input.case.coordinates,
-                    "date":user_input.case.date,
-                    "entity_tags":user_input.case.entity_tags.map(tag=>ObjectId(tag)),
-                    "encounters":encounters_id,
-                    "comments":[]
+                }             
 
             })
 
+            console.log(ids_to_delete)
+
+
+            encounter_ids=ids_to_delete.encounters
+            comments_ids=ids_to_delete.comments
+
+
+            let deleted_comments = await db.collection('comments').deleteOne({
+                "_id": ObjectId(comment_id)
+            })
+
+
+
+            
+
+
+
+         
+            // //encounters
+            // let encounters_id=[]
+
+            // for(let encounter of user_input.encounters){
+
+            //     let encounter_id=new ObjectId()
+            //     encounters_id.push(encounter_id)
+            //     await db.collection('encounters').insertOne({
+            //             "_id": encounter_id,
+            //             "images":encounter.images,
+            //             "sightings_description":encounter.sightings_description,
+            //             "equipment_used":encounter.equipment_used,
+            //             "contact_type":encounter.contact_type,
+            //             "number_of_entities":encounter.number_of_entities,
+            //             "time_of_encounter":encounter.time_of_encounter
+            //     })
+
+
+
+
+            // }
+
+            // //case
+
+            // let case_id = new ObjectId()
+
+           
+
 
             
             
                 
 
-            // witness
+            // // witness
 
-            let email = await db.collection('witness').findOne({"email":user_input.witness.email})
+            // let email = await db.collection('witness').findOne({"email":user_input.witness.email})
             
 
-            if(email===null){
+            // if(email===null){
                 
-                let witness_id = new ObjectId()
+            //     let witness_id = new ObjectId()
 
-                await db.collection('witness').insertOne({ 
-                    "_id": witness_id,
-                    "display_name":user_input.witness.display_name,
-                    "occupation":user_input.witness.occupation,
-                    "gender":user_input.witness.gender,
-                    "age":user_input.witness.age,
-                    "company":user_input.witness.company,
-                    "investigator":user_input.witness.investigator,
-                    "email":user_input.witness.email,
-                    "cases":[case_id]
+            //     await db.collection('witness').insertOne({ 
+            //         "_id": witness_id,
+            //         "display_name":user_input.witness.display_name,
+            //         "occupation":user_input.witness.occupation,
+            //         "gender":user_input.witness.gender,
+            //         "age":user_input.witness.age,
+            //         "company":user_input.witness.company,
+            //         "investigator":user_input.witness.investigator,
+            //         "email":user_input.witness.email,
+            //         "cases":[case_id]
                         
-                })
+            //     })
 
 
-            }else{
+            // }else{
 
                 
-                await db.collection('witness').updateOne({ 
-                    "email": user_input.witness.email
-                }, {
-                        $push: {
-                            "cases":case_id
-                        }
-                })
+            //     await db.collection('witness').updateOne({ 
+            //         "email": user_input.witness.email
+            //     }, {
+            //             $push: {
+            //                 "cases":case_id
+            //             }
+            //     })
 
 
 
-            }
+            // }
            
         
         
@@ -524,7 +542,7 @@ async function main() {
         
             
             res.status(200)
-            res.send("New case added!")
+            res.send("Case deleted!")
 
 
 
@@ -640,6 +658,6 @@ async function main() {
 main();
 
 // START SERVER
-app.listen(3001, () => {
+app.listen(3002, () => {
     console.log("Server started")
 })
