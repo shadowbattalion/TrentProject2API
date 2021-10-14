@@ -469,10 +469,10 @@ async function main() {
     //                 ]
     // }
 
-
+    //needs encounter id if there is a change in the encounter
     app.put('/update_case/:id', async (req, res) => {
 
-        // try {
+        try {
             let db = MongoUtil.getDB()
             
             let user_input = req.body
@@ -480,94 +480,90 @@ async function main() {
             let case_id=req.params.id
 
             //cases
-            await db.collection('cases').updateOne({
-                "_id": ObjectId(case_id)
-            }, {
-                '$set': {
-                    "case_title":user_input.case.case_title,
-                    "generic_description":user_input.case.generic_description,
-                    "type_of_activity":user_input.case.type_of_activity,
-                    "rating":user_input.case.rating,
-                    "location":user_input.case.location,
-                    "coordinates":user_input.case.coordinates,
-                    "date":user_input.case.date,
-                    "entity_tags":user_input.case.entity_tags.map(tag=>ObjectId(tag))
-                }
-            })
-        
+            if("case" in user_input){
+                await db.collection('cases').updateOne({
+                    "_id": ObjectId(case_id)
+                }, {
+                    '$set': {
+                        "case_title":user_input.case.case_title,
+                        "generic_description":user_input.case.generic_description,
+                        "type_of_activity":user_input.case.type_of_activity,
+                        "rating":user_input.case.rating,
+                        "location":user_input.case.location,
+                        "coordinates":user_input.case.coordinates,
+                        "date":user_input.case.date,
+                        "entity_tags":user_input.case.entity_tags.map(tag=>ObjectId(tag))
+                    }
+                }) 
+            }
 
 
          
             //encounters
-            let encounters_id=[]
+            if("encounters" in user_input){
 
-            for(let encounter of user_input.encounters){
+                let encounters_id=[]
 
-                if("id" in encounter){
+                for(let encounter of user_input.encounters){
 
-                    await db.collection('encounters').updateOne({ 
-                        "_id": ObjectId(encounter.id)
-                    }, {
-                            $set: {
+                    if("id" in encounter){
+
+                        await db.collection('encounters').updateOne({ 
+                            "_id": ObjectId(encounter.id)
+                        }, {
+                                $set: {
+                                    "images":encounter.images,
+                                    "sightings_description":encounter.sightings_description,
+                                    "equipment_used":encounter.equipment_used,
+                                    "contact_type":encounter.contact_type,
+                                    "number_of_entities":encounter.number_of_entities,
+                                    "time_of_encounter":encounter.time_of_encounter
+                                }
+                        })
+
+
+
+                    }else{
+
+                        let encounter_id=new ObjectId()
+                        encounters_id.push(encounter_id)
+                        await db.collection('encounters').insertOne({
+                                "_id": encounter_id,
                                 "images":encounter.images,
                                 "sightings_description":encounter.sightings_description,
                                 "equipment_used":encounter.equipment_used,
                                 "contact_type":encounter.contact_type,
                                 "number_of_entities":encounter.number_of_entities,
                                 "time_of_encounter":encounter.time_of_encounter
-                            }
-                    })
+                        })
 
-
-
-                }else{
-
-                    let encounter_id=new ObjectId()
-                    encounters_id.push(encounter_id)
-                    await db.collection('encounters').insertOne({
-                            "_id": encounter_id,
-                            "images":encounter.images,
-                            "sightings_description":encounter.sightings_description,
-                            "equipment_used":encounter.equipment_used,
-                            "contact_type":encounter.contact_type,
-                            "number_of_entities":encounter.number_of_entities,
-                            "time_of_encounter":encounter.time_of_encounter
-                    })
+                    }
 
                 }
 
+                if(encounters_id){
+                    await db.collection('cases').updateOne({ 
+                        "_id": ObjectId(case_id)
+                    }, {
+                            $push: {
+                                "encounters":{$each: encounters_id}
+                            }
+                    })
+                }
             }
 
 
-            await db.collection('cases').updateOne({ 
-                "_id": ObjectId(case_id)
-            }, {
-                    $push: {
-                        "encounters":{$each: encounters_id}
-                    }
-            })
-
-
             
-            
-                
-
-            
-           
-        
-        
-        
-        
             
             res.status(200)
             res.send("Case updated!")
 
 
 
-        // } catch (e) {
-        //     res.status(500)
-        //     res.send(e)         
-        // }
+        } catch (e) {
+            res.status(500)
+            res.send(e)         
+        }
 
 
     })
