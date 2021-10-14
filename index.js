@@ -343,7 +343,7 @@ async function main() {
             
             let user_input = req.body
 
-
+         
             //encounters
             let encounters_id=[]
 
@@ -379,7 +379,7 @@ async function main() {
                     "location":user_input.case.location,
                     "coordinates":user_input.case.coordinates,
                     "date":user_input.case.date,
-                    "entity_tags":user_input.case.entity_tags, //remember to resolve this with ObjectId().
+                    "entity_tags":user_input.case.entity_tags.map(tag=>ObjectId(tag)),
                     "encounters":encounters_id,
                     "comments":[]
 
@@ -413,12 +413,12 @@ async function main() {
 
             }else{
 
-
+                console.log("test")
                 await db.collection('witness').updateOne({ 
                     "_id": ObjectId(req.cookies.cookieName)
                 }, {
                         $push: {
-                            "cases":[case_id]
+                            "cases":case_id
                         }
                 })
 
@@ -549,6 +549,6 @@ async function main() {
 main();
 
 // START SERVER
-app.listen(3000, () => {
+app.listen(3001, () => {
     console.log("Server started")
 })
