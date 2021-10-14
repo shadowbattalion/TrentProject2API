@@ -7,7 +7,7 @@ const cookieParser = require('cookie-parser');
 
 
 let app = express();
-
+let cookie_random_number=0
 // important for RESTFul API:
 
 // allow Express to process JSON payload
@@ -27,8 +27,8 @@ app.use(async function (req, res, next) {
    
     if (cookie === undefined) {
         // no: set a new cookie
-        let randomNumber=new ObjectId()
-        res.cookie('cookieName',randomNumber, { maxAge: 900000, httpOnly: true });
+        cookie_random_number=new ObjectId()
+        res.cookie('cookieName',cookie_random_number, { maxAge: 900000, httpOnly: true });
         console.log('cookie created successfully');
     } else {
         // yes, cookie was already present 
@@ -338,7 +338,7 @@ async function main() {
 
     app.post('/add_case', async (req, res) => {
 
-        // try {
+        try {
             let db = MongoUtil.getDB()
             
             let user_input = req.body
@@ -396,24 +396,19 @@ async function main() {
             
             if(registered===null){
                 console.log(req.cookies.cookieName)
-                let test = await db.collection('witness').updateOne({ 
-                    "_id": ObjectId(req.cookies.cookieName)
-                }, {
-                        $set: {
-                            "display_name":user_input.witness.display_name,
-                            "occupation":user_input.witness.occupation,
-                            "gender":user_input.witness.gender,
-                            "age":user_input.witness.age,
-                            "company":user_input.witness.company,
-                            "investigator":user_input.witness.investigator,
-                            "email":user_input.witness.email,
-                            "cases":[case_id]
-                        }
+                console.log(cookie_random_number)
+                let test = await db.collection('witness').insertOne({ 
+                    "_id": cookie_random_number,
+                    "display_name":user_input.witness.display_name,
+                    "occupation":user_input.witness.occupation,
+                    "gender":user_input.witness.gender,
+                    "age":user_input.witness.age,
+                    "company":user_input.witness.company,
+                    "investigator":user_input.witness.investigator,
+                    "email":user_input.witness.email,
+                    "cases":[case_id]
+                        
                 })
-
-                console.log(test)
-
-
 
 
             }else{
@@ -441,10 +436,10 @@ async function main() {
 
 
 
-        // } catch (e) {
-        //     res.status(500)
-        //     res.send(e)         
-        // }
+        } catch (e) {
+            res.status(500)
+            res.send(e)         
+        }
 
 
     })
