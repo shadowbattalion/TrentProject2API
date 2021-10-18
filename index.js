@@ -35,6 +35,27 @@ async function main() {
 
     await MongoUtil.connect(process.env.MONGO_URI, "ghost_sightings")
 
+    app.get('/list_entity_tags', async (req, res) => {
+
+        try {
+            let db = MongoUtil.getDB();
+    
+            
+    
+            let entity_tags = await db.collection('entity_tags').find().toArray()
+                        
+        
+
+            res.status(200)
+            res.json(entity_tags)
+            
+
+        } catch (e) {
+            res.status(500)
+            res.send(e)         
+        }
+    })
+
     app.get('/cases', async (req, res) => {
 
         try {
