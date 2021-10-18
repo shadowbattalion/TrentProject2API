@@ -300,19 +300,15 @@ async function main() {
     //      "witness":{
     //                     "occupation":"NSMan",
     //                     "display_name":"",
-    //                     "gender":"male",
     //                     "age":"23",
     //                     "company":"",
-    //                     "investigator":false,
     //                     "email":"test@this.com"
     //                 },
     //     "case":     {
     //                     "case_title":"Ghost in Woodlands",
     //                     "generic_description":"This is a scary ghost adventure",
     //                     "type_of_activity":"Ghost-Hunting",
-    //                     "rating":3,
     //                     "location":"Woodlands Drive 40",
-    //                     "coordinates":[21.2, 32.4],
     //                     "date":"27-2034",
     //                     "entity_tags":["616509e7154896339f81b009","616509f8154896339f81b00a"]
     //                 },
