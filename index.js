@@ -7,7 +7,6 @@ const cookieParser = require('cookie-parser');
 
 
 let app = express();
-let cookie_random_number=0
 // important for RESTFul API:
 
 // allow Express to process JSON payload
@@ -298,11 +297,11 @@ async function main() {
     // Add_case format:
     // {
     //      "witness":{
-    //                     "occupation":"NSMan",
+    //                     "email_address":"test@this.com"
     //                     "display_name":"",
+    //                     "occupation":"NSMan",
     //                     "age":"23",
-    //                     "company":"",
-    //                     "email":"test@this.com"
+    //                     "company_name":""
     //                 },
     //     "case":     {
     //                     "case_title":"Ghost in Woodlands",
@@ -334,6 +333,8 @@ async function main() {
 
 
     app.post('/add_case', async (req, res) => {
+
+        
 
         try {
             let db = MongoUtil.getDB()
@@ -372,9 +373,8 @@ async function main() {
                     "case_title":user_input.case.case_title,
                     "generic_description":user_input.case.generic_description,
                     "type_of_activity":user_input.case.type_of_activity,
-                    "rating":user_input.case.rating,
+                    // "rating":user_input.case.rating,
                     "location":user_input.case.location,
-                    "coordinates":user_input.case.coordinates,
                     "date":user_input.case.date,
                     "entity_tags":user_input.case.entity_tags.map(tag=>ObjectId(tag)),
                     "encounters":encounters_id,
@@ -389,7 +389,7 @@ async function main() {
 
             // witness
 
-            let email = await db.collection('witness').findOne({"email":user_input.witness.email})
+            let email = await db.collection('witness').findOne({"email_address":user_input.witness.email_address})
             
 
             if(email===null){
@@ -398,13 +398,13 @@ async function main() {
 
                 await db.collection('witness').insertOne({ 
                     "_id": witness_id,
+                    "email_address":user_input.witness.email_address,
                     "display_name":user_input.witness.display_name,
                     "occupation":user_input.witness.occupation,
-                    "gender":user_input.witness.gender,
                     "age":user_input.witness.age,
-                    "company":user_input.witness.company,
+                    "company_name":user_input.witness.company_name,
                     "investigator":user_input.witness.investigator,
-                    "email":user_input.witness.email,
+                    
                     "cases":[case_id]
                         
                 })
