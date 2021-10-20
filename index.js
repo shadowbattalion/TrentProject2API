@@ -523,7 +523,7 @@ async function main() {
 
                 for(let encounter of user_input.encounters){
 
-                    if("id" in encounter){
+                    if("_id" in encounter){
 
                         await db.collection('encounters').updateOne({ 
                             "_id": ObjectId(encounter.id)
