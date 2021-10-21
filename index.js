@@ -313,7 +313,7 @@ async function main() {
     //                 },
     //     "encounters":[
     //                     {
-    //                         "images":["http://test.com"],
+    //                         "image":["http://test.com"],
     //                         "sightings_description":"The ghost can be seen here",
     //                         "equipment_used":["phone","camera"],
     //                         "contact_type":["visual"],
@@ -321,7 +321,7 @@ async function main() {
     //                         "time_of_encounter":"midday"
     //                     },
     //                     {
-    //                         "images":["http://test.com"],
+    //                         "image":["http://test.com"],
     //                         "sightings_description":"The ghost can be seen here",
     //                         "equipment_used":["phone","camera"],
     //                         "contact_type":["visual"],
@@ -351,7 +351,7 @@ async function main() {
                 encounters_id.push(encounter_id)
                 await db.collection('encounters').insertOne({
                         "_id": encounter_id,
-                        "images":encounter.images,
+                        "image":encounter.image,
                         "sightings_description":encounter.sightings_description,
                         "equipment_used":encounter.equipment_used,
                         "contact_type":encounter.contact_type,
@@ -460,7 +460,7 @@ async function main() {
     //     "encounters":[
     //                    {
     //                         "id":"6168245cce90d6d9d1afd5cd",
-    //                         "images":["http://test.com"],
+    //                         "image":["http://test.com"],
     //                         "sightings_description":"The ghost can everywhere",
     //                         "equipment_used":["phone","camera"],
     //                         "contact_type":["visual"],
@@ -468,7 +468,7 @@ async function main() {
     //                         "time_of_encounter":"midday"
     //                     },
     //                     {
-    //                         "images":["http://test.com"],
+    //                         "image":["http://test.com"],
     //                         "sightings_description":"The ghost can be seen here",
     //                         "equipment_used":["phone","camera"],
     //                         "contact_type":["visual"],
@@ -476,7 +476,7 @@ async function main() {
     //                         "time_of_encounter":"midday"
     //                     },
     //                     {
-    //                         "images":["http://test.com"],
+    //                         "image":["http://test.com"],
     //                         "sightings_description":"The ghost can be seen here",
     //                         "equipment_used":["phone","camera"],
     //                         "contact_type":["visual"],
@@ -489,7 +489,7 @@ async function main() {
     //needs encounter id if there is a change in the encounter
     app.put('/update_case/:id', async (req, res) => {
 
-        try {
+        // try {
             let db = MongoUtil.getDB()
             
             let user_input = req.body
@@ -528,7 +528,7 @@ async function main() {
                         encounters_id.push(encounter_id)
                         await db.collection('encounters').insertOne({
                                 "_id": encounter_id,
-                                "images":encounter.images,
+                                "image":encounter.image,
                                 "sightings_description":encounter.sightings_description,
                                 "equipment_used":encounter.equipment_used,
                                 "contact_type":encounter.contact_type,
@@ -551,7 +551,7 @@ async function main() {
                             "_id": ObjectId(encounter.id)
                         }, {
                                 $set: {
-                                    "images":encounter.images,
+                                    "image":encounter.image,
                                     "sightings_description":encounter.sightings_description,
                                     "equipment_used":encounter.equipment_used,
                                     "contact_type":encounter.contact_type,
@@ -585,10 +585,10 @@ async function main() {
 
 
 
-        } catch (e) {
-            res.status(500)
-            res.send(e)         
-        }
+        // } catch (e) {
+        //     res.status(500)
+        //     res.send(e)         
+        // }
 
 
     })
