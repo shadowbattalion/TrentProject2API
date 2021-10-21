@@ -120,7 +120,7 @@ async function main() {
 
             entity_tag_details=[]
             for(let entity_tag_id of cases_detail.entity_tags){
-                entity_tag_detail=await db.collection('entity_tags').findOne({"_id":entity_tag_id},{"projection":{"entity":1,"_id":0}})
+                entity_tag_detail=await db.collection('entity_tags').findOne({"_id":entity_tag_id},{"projection":{"entity":0,"_id":1}})
                 entity_tag_details.push(entity_tag_detail)
             }
             cases_detail.entity_tags=entity_tag_details
@@ -523,7 +523,30 @@ async function main() {
 
                 for(let encounter of user_input.encounters){
 
-                    if("_id" in encounter){
+                    if(encounter._id.includes("front_end_id")){
+
+                        let encounter_id=new ObjectId()
+                        encounters_id.push(encounter_id)
+                        await db.collection('encounters').insertOne({
+                                "_id": encounter_id,
+                                "images":encounter.images,
+                                "sightings_description":encounter.sightings_description,
+                                "equipment_used":encounter.equipment_used,
+                                "contact_type":encounter.contact_type,
+                                "number_of_entities":encounter.number_of_entities,
+                                "time_of_encounter":encounter.time_of_encounter
+                        })
+
+
+
+                    }else if(Object.keys(encounter).length==1){
+
+                        await db.collection('encounters').deleteOne({
+                            "_id": encounter._id
+                        })
+                        
+
+                    } else {
 
                         await db.collection('encounters').updateOne({ 
                             "_id": ObjectId(encounter.id)
@@ -539,21 +562,7 @@ async function main() {
                         })
 
 
-
-                    }else{
-
-                        let encounter_id=new ObjectId()
-                        encounters_id.push(encounter_id)
-                        await db.collection('encounters').insertOne({
-                                "_id": encounter_id,
-                                "images":encounter.images,
-                                "sightings_description":encounter.sightings_description,
-                                "equipment_used":encounter.equipment_used,
-                                "contact_type":encounter.contact_type,
-                                "number_of_entities":encounter.number_of_entities,
-                                "time_of_encounter":encounter.time_of_encounter
-                        })
-
+                        
                     }
 
                 }
