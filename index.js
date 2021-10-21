@@ -505,16 +505,15 @@ async function main() {
                         "case_title":user_input.case.case_title,
                         "generic_description":user_input.case.generic_description,
                         "type_of_activity":user_input.case.type_of_activity,
-                        "rating":user_input.case.rating,
+                        // "rating":user_input.case.rating,
                         "location":user_input.case.location,
-                        "coordinates":user_input.case.coordinates,
                         "date":user_input.case.date,
                         "entity_tags":user_input.case.entity_tags.map(tag=>ObjectId(tag))
                     }
                 }) 
             }
 
-
+           
          
             //encounters
             if("encounters" in user_input){
