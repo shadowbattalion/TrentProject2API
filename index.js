@@ -539,16 +539,25 @@ async function main() {
 
 
                     }else if(Object.keys(encounter).length==1){
-
-                        await db.collection('encounters').deleteOne({
-                            "_id": encounter._id
+                        
+                        let test = await db.collection('encounters').deleteOne({
+                            "_id": ObjectId(encounter._id)
                         })
                         
+                        await db.collection('cases').updateOne({            
+                            "encounters": ObjectId(encounter._id)
+                        }, {
+                                "$pull": {
+                                    "encounters": ObjectId(encounter._id)
+                                }
+                        })
+
+
+
 
                     } else {
-
                         await db.collection('encounters').updateOne({ 
-                            "_id": ObjectId(encounter.id)
+                            "_id": ObjectId(encounter._id)
                         }, {
                                 $set: {
                                     "image":encounter.image,
