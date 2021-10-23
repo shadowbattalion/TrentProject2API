@@ -176,7 +176,7 @@ async function main() {
         
             
             res.status(200)
-            res.send({"new_comment_inserted":insert_new_comment, "cases_updated":update_in_cases})
+            res.send(insert_new_comment)
 
 
 
