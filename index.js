@@ -149,19 +149,21 @@ async function main() {
 
     //Case_id required in body
     app.post('/post_comment', async (req, res) => {
-
+        
         try {
             let db = MongoUtil.getDB()
             
             let case_id = req.body.case_id
             let comment_id = new ObjectId()
             let content = req.body.content
+            let like = req.body.like
             
 
         
             let insert_new_comment = await db.collection('comments').insertOne({
                 "_id": ObjectId(comment_id),
-                "content": content
+                "content": content,
+                "like":like
             })
 
             let update_in_cases = await db.collection('cases').updateOne({ 
@@ -189,13 +191,14 @@ async function main() {
 
     
     app.put('/edit_comment/:id', async (req, res) => {
-
+        
         try {
             let db = MongoUtil.getDB()
             
             
             let comment_id = req.params.id
             let content=req.body.content
+            let like=req.body.like
 
           
 
@@ -204,7 +207,8 @@ async function main() {
                 
             },{
                 "$set":{
-                    "content": content
+                    "content": content,
+                    "like":like
                 }
             })
 
@@ -226,8 +230,8 @@ async function main() {
 
     
     app.delete('/delete_comment/:id', async (req, res) => {
-
-        try {
+        console.log(req.params.id)
+        // try {
             let db = MongoUtil.getDB()
             
             let comment_id = req.params.id
@@ -251,10 +255,10 @@ async function main() {
 
 
 
-        } catch (e) {
-            res.status(500)
-            res.send(e)         
-        }
+        // } catch (e) {
+        //     res.status(500)
+        //     res.send(e)         
+        // }
 
 
     })
@@ -493,7 +497,7 @@ async function main() {
             let db = MongoUtil.getDB()
             
             let user_input = req.body
-            console.log(user_input)
+            // console.log(user_input)
             let case_id=req.params.id
 
             //cases
