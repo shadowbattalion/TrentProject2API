@@ -157,8 +157,13 @@ async function main() {
             let comment_id = new ObjectId()
             let content = req.body.content
             let like = req.body.like
+
+
+            let check_id_exists = await db.collection('cases').findOne({
+                "_id": ObjectId(case_id)
+            })
                 
-            if(content){
+            if(check_id_exists && content){
             
                 let insert_new_comment = await db.collection('comments').insertOne({
                     "_id": ObjectId(comment_id),
@@ -206,8 +211,12 @@ async function main() {
             let content=req.body.content
             let like=req.body.like
 
+            let check_id_exists = await db.collection('comments').findOne({
+                "_id": ObjectId(comment_id)
+            })
+
             
-            if(content){
+            if(check_id_exists && content){
                 let edit_comment = await db.collection('comments').updateOne({
                     "_id": ObjectId(comment_id)
                     
@@ -247,8 +256,14 @@ async function main() {
             let db = MongoUtil.getDB()
             
             let comment_id = req.params.id
+
+            let check_id_exists = await db.collection('comments').findOne({
+                "_id": ObjectId(comment_id)
+            })
+
             
-            if(comment_id){
+            if(check_id_exists && comment_id){
+        
                 
                 let deleted_comments = await db.collection('comments').deleteOne({
                     "_id": ObjectId(comment_id)
@@ -511,7 +526,12 @@ async function main() {
             
             let user_input = req.body
             let case_id=req.params.id
+            
+            let check_id_exists = await db.collection('cases').findOne({
+                "_id": ObjectId(case_id)
+            })
 
+            
             let encounter_list_details=false
             for(let encounter of user_input.encounters){
 
@@ -528,7 +548,7 @@ async function main() {
             }
 
             
-            if(encounter_list_details && user_input.case.case_title && user_input.case.type_of_activity && user_input.case.location && user_input.case.date && user_input.case.entity_tags && user_input.encounters.length!=0){
+            if(check_id_exists && encounter_list_details && user_input.case.case_title && user_input.case.type_of_activity && user_input.case.location && user_input.case.date && user_input.case.entity_tags && user_input.encounters.length!=0){
                 //cases
                 if("case" in user_input){
                     await db.collection('cases').updateOne({
@@ -653,63 +673,67 @@ async function main() {
             
             let case_id= req.params.id
 
-           
-            let ids_to_delete = await db.collection('cases').findOne({
+            let check_id_exists = await db.collection('cases').findOne({
                 "_id": ObjectId(case_id)
-            },{
-                "projection":{
-                    
-                    comments:1,
-                    encounters:1
-
-
-                }             
-
             })
 
-            console.log(ids_to_delete)
+            if(check_id_exists && case_id){
+                let ids_to_delete = await db.collection('cases').findOne({
+                    "_id": ObjectId(case_id)
+                },{
+                    "projection":{
+                        
+                        comments:1,
+                        encounters:1
 
 
-            encounter_ids=ids_to_delete.encounters
-            comment_ids=ids_to_delete.comments
+                    }             
+
+                })
+
+                
+
+
+                encounter_ids=ids_to_delete.encounters
+                comment_ids=ids_to_delete.comments
 
 
 
-            if(encounter_ids){
-                for(let id of encounter_ids){
+                if(encounter_ids){
+                    for(let id of encounter_ids){
 
-                    await db.collection('encounters').deleteOne({
-                        "_id": id
-                    })
+                        await db.collection('encounters').deleteOne({
+                            "_id": id
+                        })
 
-                }
-            }
-
-            if(comment_ids){
-                for(let id of comment_ids){
-
-                    await db.collection('comments').deleteOne({
-                        "_id": id
-                    })
-
-                }
-
-            }
-
-            
-            let deleted_in_cases = await db.collection('witness').updateOne({            
-                "cases": ObjectId(case_id)
-            }, {
-                    "$pull": {
-                        "cases": ObjectId(case_id)
                     }
-            })
-            
+                }
+
+                if(comment_ids){
+                    for(let id of comment_ids){
+
+                        await db.collection('comments').deleteOne({
+                            "_id": id
+                        })
+
+                    }
+
+                }
+
+                
+                let deleted_in_cases = await db.collection('witness').updateOne({            
+                    "cases": ObjectId(case_id)
+                }, {
+                        "$pull": {
+                            "cases": ObjectId(case_id)
+                        }
+                })
+                
 
 
-            await db.collection('cases').deleteOne({
-                "_id": ObjectId(case_id)
-            })
+                await db.collection('cases').deleteOne({
+                    "_id": ObjectId(case_id)
+                })
 
 
             
@@ -718,8 +742,16 @@ async function main() {
         
         
             
-            res.status(200)
-            res.send("Case deleted!")
+                res.status(200)
+                res.send("Case deleted!")
+
+            }else{
+                    
+                res.status(400)
+                res.send("Malformed input")
+
+
+            }
 
 
 
