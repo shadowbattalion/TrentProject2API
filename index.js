@@ -339,103 +339,112 @@ async function main() {
     app.post('/add_case', async (req, res) => {
 
         
-
         try {
-            let db = MongoUtil.getDB()
             
+            let db = MongoUtil.getDB()
+                
             let user_input = req.body
 
-         
-            //encounters
-            let encounters_id=[]
 
-            for(let encounter of user_input.encounters){
+            if(encounter.image && encounter.equipment_used && encounter.contact_type && encounter.number_of_entities && encounter.time_of_encounter && user_input.witness.email_address && user_input.witness.display_name && user_input.witness.age && user_input.case.case_title && user_input.case.type_of_activity && user_input.case.location && user_input.case.date && user_input.case.entity_tags && user_input.encounters.length!=0){
+                
 
-                let encounter_id=new ObjectId()
-                encounters_id.push(encounter_id)
-                await db.collection('encounters').insertOne({
-                        "_id": encounter_id,
-                        "image":encounter.image,
-                        "sightings_description":encounter.sightings_description,
-                        "equipment_used":encounter.equipment_used,
-                        "contact_type":encounter.contact_type,
-                        "number_of_entities":encounter.number_of_entities,
-                        "time_of_encounter":encounter.time_of_encounter
+            
+                //encounters
+                let encounters_id=[]
+
+                for(let encounter of user_input.encounters){
+
+                    let encounter_id=new ObjectId()
+                    encounters_id.push(encounter_id)
+                    await db.collection('encounters').insertOne({
+                            "_id": encounter_id,
+                            "image":encounter.image,
+                            "sightings_description":encounter.sightings_description,
+                            "equipment_used":encounter.equipment_used,
+                            "contact_type":encounter.contact_type,
+                            "number_of_entities":encounter.number_of_entities,
+                            "time_of_encounter":encounter.time_of_encounter
+                    })
+
+
+
+
+                }
+
+                //case
+
+                let case_id = new ObjectId()
+
+                await db.collection('cases').insertOne({
+                        "_id": case_id,
+                        "case_title":user_input.case.case_title,
+                        "generic_description":user_input.case.generic_description,
+                        "type_of_activity":user_input.case.type_of_activity,
+                        "location":user_input.case.location,
+                        "date":user_input.case.date,
+                        "entity_tags":user_input.case.entity_tags.map(tag=>ObjectId(tag)),
+                        "encounters":encounters_id,
+                        "comments":[]
+
                 })
 
 
-
-
-            }
-
-            //case
-
-            let case_id = new ObjectId()
-
-            await db.collection('cases').insertOne({
-                    "_id": case_id,
-                    "case_title":user_input.case.case_title,
-                    "generic_description":user_input.case.generic_description,
-                    "type_of_activity":user_input.case.type_of_activity,
-                    // "rating":user_input.case.rating,
-                    "location":user_input.case.location,
-                    "date":user_input.case.date,
-                    "entity_tags":user_input.case.entity_tags.map(tag=>ObjectId(tag)),
-                    "encounters":encounters_id,
-                    "comments":[]
-
-            })
-
-
-            
-            
                 
-
-            // witness
-
-            let email = await db.collection('witness').findOne({"email_address":user_input.witness.email_address})
-            
-
-            if(email===null){
                 
-                let witness_id = new ObjectId()
-
-                await db.collection('witness').insertOne({ 
-                    "_id": witness_id,
-                    "email_address":user_input.witness.email_address,
-                    "display_name":user_input.witness.display_name,
-                    "occupation":user_input.witness.occupation,
-                    "age":user_input.witness.age,
-                    "company_name":user_input.witness.company_name,
-                    "investigator":user_input.witness.investigator,
                     
-                    "cases":[case_id]
-                        
-                })
 
+                // witness
 
-            }else{
-
+                let email = await db.collection('witness').findOne({"email_address":user_input.witness.email_address})
                 
-                await db.collection('witness').updateOne({ 
-                    "email": user_input.witness.email
-                }, {
-                        $push: {
-                            "cases":case_id
-                        }
-                })
+
+                if(email===null){
+                    
+                    let witness_id = new ObjectId()
+
+                    await db.collection('witness').insertOne({ 
+                        "_id": witness_id,
+                        "email_address":user_input.witness.email_address,
+                        "display_name":user_input.witness.display_name,
+                        "occupation":user_input.witness.occupation,
+                        "age":user_input.witness.age,
+                        "company_name":user_input.witness.company_name,                     
+                        "cases":[case_id]
+                            
+                    })
+
+
+                }else{
+
+                    
+                    await db.collection('witness').updateOne({ 
+                        "email": user_input.witness.email
+                    }, {
+                            $push: {
+                                "cases":case_id
+                            }
+                    })
 
 
 
-            }
-           
-        
-        
-        
-        
+                }
             
-            res.status(200)
-            res.send("New case added!")
+            
+            
+            
+            
+                
+                res.status(200)
+                res.send("New case added!")
+                
+                }else{
+
+                    res.status(400)
+                    res.send("Incomplete input")
+
+
+                }
 
 
 
