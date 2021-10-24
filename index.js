@@ -150,40 +150,46 @@ async function main() {
     //Case_id required in body
     app.post('/post_comment', async (req, res) => {
         
-        // try {
+        try {
             let db = MongoUtil.getDB()
-            
+                
             let case_id = req.body.case_id
             let comment_id = new ObjectId()
             let content = req.body.content
             let like = req.body.like
+                
+            if(content){
             
+                let insert_new_comment = await db.collection('comments').insertOne({
+                    "_id": ObjectId(comment_id),
+                    "content": content,
+                    "like":like
+                })
 
-        
-            let insert_new_comment = await db.collection('comments').insertOne({
-                "_id": ObjectId(comment_id),
-                "content": content,
-                "like":like
-            })
-
-            let update_in_cases = await db.collection('cases').updateOne({ 
-                "_id": ObjectId(case_id)
-            }, {
-                    $push: {
-                        "comments": ObjectId(comment_id)
-                    }
-            })
-        
+                let update_in_cases = await db.collection('cases').updateOne({ 
+                    "_id": ObjectId(case_id)
+                }, {
+                        $push: {
+                            "comments": ObjectId(comment_id)
+                        }
+                })
             
-            res.status(200)
-            res.send(insert_new_comment)
+                
+                res.status(200)
+                res.send(insert_new_comment)
+
+            }else{
+                        
+                res.status(400)
+                res.send("Malformed input")
 
 
+            }
 
-        // } catch (e) {
-        //     res.status(500)
-        //     res.send(e)         
-        // }
+        } catch (e) {
+            res.status(500)
+            res.send(e)         
+        }
 
 
     })
@@ -194,31 +200,37 @@ async function main() {
         
         try {
             let db = MongoUtil.getDB()
-            
-            
+                
+                
             let comment_id = req.params.id
             let content=req.body.content
             let like=req.body.like
 
-          
+            
+            if(content){
+                let edit_comment = await db.collection('comments').updateOne({
+                    "_id": ObjectId(comment_id)
+                    
+                },{
+                    "$set":{
+                        "content": content,
+                        "like":like
+                    }
+                })
 
-            let edit_comment = await db.collection('comments').updateOne({
-                "_id": ObjectId(comment_id)
                 
-            },{
-                "$set":{
-                    "content": content,
-                    "like":like
-                }
-            })
-
             
-        
-            
-            res.status(200)
-            res.send(edit_comment)
+                
+                res.status(200)
+                res.send(edit_comment)
+
+            }else{
+                            
+                res.status(400)
+                res.send("Malformed input")
 
 
+            }
 
         } catch (e) {
             res.status(500)
@@ -230,72 +242,49 @@ async function main() {
 
     
     app.delete('/delete_comment/:id', async (req, res) => {
-        console.log(req.params.id)
-        // try {
+        
+        try {
             let db = MongoUtil.getDB()
             
             let comment_id = req.params.id
             
+            if(comment_id){
                 
-            let deleted_comments = await db.collection('comments').deleteOne({
-                "_id": ObjectId(comment_id)
-            })
-        
-            let deleted_in_cases = await db.collection('cases').updateOne({            
-                "comments": ObjectId(comment_id)
-            }, {
-                    "$pull": {
-                        "comments": ObjectId(comment_id)
-                    }
-            })
-        
+                let deleted_comments = await db.collection('comments').deleteOne({
+                    "_id": ObjectId(comment_id)
+                })
             
-            res.status(200)
-            res.send({"comment_deleted":deleted_comments, "cases_updated":deleted_in_cases})
+                let deleted_in_cases = await db.collection('cases').updateOne({            
+                    "comments": ObjectId(comment_id)
+                }, {
+                        "$pull": {
+                            "comments": ObjectId(comment_id)
+                        }
+                })
+            
+                
+                res.status(200)
+                res.send({"comment_deleted":deleted_comments, "cases_updated":deleted_in_cases})
+
+            }else{
+                            
+                res.status(400)
+                res.send("Malformed input")
 
 
+            }
 
-        // } catch (e) {
-        //     res.status(500)
-        //     res.send(e)         
-        // }
+        } catch (e) {
+            res.status(500)
+            res.send(e)         
+        }
 
 
     })
 
     
 
-    // app.get("/check_registered", async(req,res)=>{
-
-    //     try {
-    //         let db = MongoUtil.getDB()
-            
-    //         let result=false
-            
-            
-
-    //         if(req.cookies.cookieName){
-
-    //             let registered = await db.collection('witness').findOne({"_id":ObjectId(req.cookies.cookieName)})
-    //             result=registered.registered?true:false
-
-    //         }
-
-           
-        
-            
-    //         res.status(200)
-    //         res.send(result)
-
-
-
-    //     } catch (e) {
-    //         res.status(500)
-    //         res.send(e)         
-    //     }
-
-
-    // })
+   
 
 
     // Add_case format:
@@ -664,7 +653,7 @@ async function main() {
             
             let case_id= req.params.id
 
-            console.log(case_id)
+           
             let ids_to_delete = await db.collection('cases').findOne({
                 "_id": ObjectId(case_id)
             },{
