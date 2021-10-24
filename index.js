@@ -456,7 +456,7 @@ async function main() {
                 }else{
                     
                     res.status(400)
-                    res.send("Incomplete input")
+                    res.send("Malformed input")
 
 
                 }
@@ -517,115 +517,138 @@ async function main() {
     //needs encounter id if there is a change in the encounter
     app.put('/update_case/:id', async (req, res) => {
 
-        // try {
+        try {
             let db = MongoUtil.getDB()
             
             let user_input = req.body
-            // console.log(user_input)
             let case_id=req.params.id
 
-            //cases
-            if("case" in user_input){
-                await db.collection('cases').updateOne({
-                    "_id": ObjectId(case_id)
-                }, {
-                    '$set': {
-                        "case_title":user_input.case.case_title,
-                        "generic_description":user_input.case.generic_description,
-                        "type_of_activity":user_input.case.type_of_activity,
-                        // "rating":user_input.case.rating,
-                        "location":user_input.case.location,
-                        "date":user_input.case.date,
-                        "entity_tags":user_input.case.entity_tags.map(tag=>ObjectId(tag))
-                    }
-                }) 
+            let encounter_list_details=false
+            for(let encounter of user_input.encounters){
+
+                if(encounter.image && encounter.equipment_used && encounter.contact_type && encounter.number_of_entities && encounter.time_of_encounter){
+
+                    encounter_list_details=true
+
+                }else{
+
+                    encounter_list_details=false
+
+                }
+
             }
 
-           
-         
-            //encounters
-            if("encounters" in user_input){
+            
+            if(encounter_list_details && user_input.case.case_title && user_input.case.type_of_activity && user_input.case.location && user_input.case.date && user_input.case.entity_tags && user_input.encounters.length!=0){
+                //cases
+                if("case" in user_input){
+                    await db.collection('cases').updateOne({
+                        "_id": ObjectId(case_id)
+                    }, {
+                        '$set': {
+                            "case_title":user_input.case.case_title,
+                            "generic_description":user_input.case.generic_description,
+                            "type_of_activity":user_input.case.type_of_activity,
+                            // "rating":user_input.case.rating,
+                            "location":user_input.case.location,
+                            "date":user_input.case.date,
+                            "entity_tags":user_input.case.entity_tags.map(tag=>ObjectId(tag))
+                        }
+                    }) 
+                }
 
-                let encounters_id=[]
+            
+            
+                //encounters
+                if("encounters" in user_input){
 
-                for(let encounter of user_input.encounters){
+                    let encounters_id=[]
 
-                    if(encounter._id.includes("front_end_id")){
+                    for(let encounter of user_input.encounters){
 
-                        let encounter_id=new ObjectId()
-                        encounters_id.push(encounter_id)
-                        await db.collection('encounters').insertOne({
-                                "_id": encounter_id,
-                                "image":encounter.image,
-                                "sightings_description":encounter.sightings_description,
-                                "equipment_used":encounter.equipment_used,
-                                "contact_type":encounter.contact_type,
-                                "number_of_entities":encounter.number_of_entities,
-                                "time_of_encounter":encounter.time_of_encounter
-                        })
+                        if(encounter._id.includes("front_end_id")){
 
-
-
-                    }else if(Object.keys(encounter).length==1){
-                        
-                        let test = await db.collection('encounters').deleteOne({
-                            "_id": ObjectId(encounter._id)
-                        })
-                        
-                        await db.collection('cases').updateOne({            
-                            "encounters": ObjectId(encounter._id)
-                        }, {
-                                "$pull": {
-                                    "encounters": ObjectId(encounter._id)
-                                }
-                        })
-
-
-
-
-                    } else {
-                        await db.collection('encounters').updateOne({ 
-                            "_id": ObjectId(encounter._id)
-                        }, {
-                                $set: {
+                            let encounter_id=new ObjectId()
+                            encounters_id.push(encounter_id)
+                            await db.collection('encounters').insertOne({
+                                    "_id": encounter_id,
                                     "image":encounter.image,
                                     "sightings_description":encounter.sightings_description,
                                     "equipment_used":encounter.equipment_used,
                                     "contact_type":encounter.contact_type,
                                     "number_of_entities":encounter.number_of_entities,
                                     "time_of_encounter":encounter.time_of_encounter
-                                }
-                        })
+                            })
 
 
-                        
+
+                        }else if(Object.keys(encounter).length==1){
+                            
+                            let test = await db.collection('encounters').deleteOne({
+                                "_id": ObjectId(encounter._id)
+                            })
+                            
+                            await db.collection('cases').updateOne({            
+                                "encounters": ObjectId(encounter._id)
+                            }, {
+                                    "$pull": {
+                                        "encounters": ObjectId(encounter._id)
+                                    }
+                            })
+
+
+
+
+                        } else {
+                            await db.collection('encounters').updateOne({ 
+                                "_id": ObjectId(encounter._id)
+                            }, {
+                                    $set: {
+                                        "image":encounter.image,
+                                        "sightings_description":encounter.sightings_description,
+                                        "equipment_used":encounter.equipment_used,
+                                        "contact_type":encounter.contact_type,
+                                        "number_of_entities":encounter.number_of_entities,
+                                        "time_of_encounter":encounter.time_of_encounter
+                                    }
+                            })
+
+
+                            
+                        }
+
                     }
 
+                    if(encounters_id){
+                        await db.collection('cases').updateOne({ 
+                            "_id": ObjectId(case_id)
+                        }, {
+                                $push: {
+                                    "encounters":{$each: encounters_id}
+                                }
+                        })
+                    }
                 }
 
-                if(encounters_id){
-                    await db.collection('cases').updateOne({ 
-                        "_id": ObjectId(case_id)
-                    }, {
-                            $push: {
-                                "encounters":{$each: encounters_id}
-                            }
-                    })
-                }
+
+                
+                
+                res.status(200)
+                res.send("Case updated!")
+            
+            }else{
+                    
+                res.status(400)
+                res.send("Malformed input")
+
+
             }
 
 
-            
-            
-            res.status(200)
-            res.send("Case updated!")
-
-
-
-        // } catch (e) {
-        //     res.status(500)
-        //     res.send(e)         
-        // }
+        } catch (e) {
+            res.status(500)
+            res.send(e)         
+        }
 
 
     })
