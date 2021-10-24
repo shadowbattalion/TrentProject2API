@@ -150,7 +150,7 @@ async function main() {
     //Case_id required in body
     app.post('/post_comment', async (req, res) => {
         
-        try {
+        // try {
             let db = MongoUtil.getDB()
             
             let case_id = req.body.case_id
@@ -180,10 +180,10 @@ async function main() {
 
 
 
-        } catch (e) {
-            res.status(500)
-            res.send(e)         
-        }
+        // } catch (e) {
+        //     res.status(500)
+        //     res.send(e)         
+        // }
 
 
     })
