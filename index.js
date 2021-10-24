@@ -348,7 +348,7 @@ async function main() {
             let encounter_list_details=false
             for(let encounter of user_input.encounters){
 
-                if(encounter.image && encounter.sightings_description && encounter.equipment_used && encounter.contact_type && encounter.number_of_entities && encounter.time_of_encounter){
+                if(encounter.image && encounter.equipment_used && encounter.contact_type && encounter.number_of_entities && encounter.time_of_encounter){
 
                     encounter_list_details=true
 
