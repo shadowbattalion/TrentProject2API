@@ -21,17 +21,7 @@ app.use(cors());
 
 async function main() {
 
-    //Endpoints test area
-
-    app.get('/', (req, res) => {
-        res.json({
-            "message": "hello world"
-        })
-    })
-
-
-
-
+ 
     await MongoUtil.connect(process.env.MONGO_URI, "ghost_sightings")
 
     app.get('/list_entity_tags', async (req, res) => {
