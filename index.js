@@ -345,8 +345,23 @@ async function main() {
                 
             let user_input = req.body
 
+            let encounter_list_details=false
+            for(let encounter of user_input.encounters){
 
-            if(encounter.image && encounter.equipment_used && encounter.contact_type && encounter.number_of_entities && encounter.time_of_encounter && user_input.witness.email_address && user_input.witness.display_name && user_input.witness.age && user_input.case.case_title && user_input.case.type_of_activity && user_input.case.location && user_input.case.date && user_input.case.entity_tags && user_input.encounters.length!=0){
+                if(encounter.image && encounter.sightings_description && encounter.equipment_used && encounter.contact_type && encounter.number_of_entities && encounter.time_of_encounter){
+
+                    encounter_list_details=true
+
+                }else{
+
+                    encounter_list_details=false
+
+                }
+
+            }
+
+
+            if(encounter_list_details && user_input.witness.email_address && user_input.witness.display_name && user_input.witness.age && user_input.case.case_title && user_input.case.type_of_activity && user_input.case.location && user_input.case.date && user_input.case.entity_tags && user_input.encounters.length!=0){
                 
 
             
@@ -439,7 +454,7 @@ async function main() {
                 res.send("New case added!")
                 
                 }else{
-
+                    
                     res.status(400)
                     res.send("Incomplete input")
 
