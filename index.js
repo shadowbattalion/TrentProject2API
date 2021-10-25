@@ -24,6 +24,14 @@ async function main() {
  
     await MongoUtil.connect(process.env.MONGO_URI, "ghost_sightings")
 
+    app.get('/search_cases', async (req, res) => {
+
+        console.log(req.params)
+
+
+
+    })
+
     app.get('/list_entity_tags', async (req, res) => {
 
         try {
