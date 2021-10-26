@@ -26,8 +26,52 @@ async function main() {
 
     app.get('/search_cases', async (req, res) => {
 
-        console.log(req.params)
 
+        let db = MongoUtil.getDB();
+        search_parameters={}
+
+        console.log(req.query.search_entity_tags)
+        console.log(req.query.from_date)
+        console.log(req.query.to_date)
+
+        
+        search_entity_tags = req.query.search_entity_tags
+        from_date = req.query.from_date
+        to_date = req.query.to_date
+
+        // if(search_entity_tags){
+
+        //     let search_entity_tags_object_id = search_entity_tags.map(tag=>ObjectId(tag))
+        
+        
+
+        //     search_parameters["entity_tags"]={
+        //         '$in':search_entity_tags_object_id
+        //     }
+
+
+        // }
+
+        if(from_date){
+
+            search_parameters["date"] = Date.parse(from_date)
+            
+        
+
+        }
+
+        // if(to_date){
+
+
+
+        // }
+
+
+
+        console.log(search_parameters)
+        let search_results = await db.collection('cases').find(search_parameters).toArray()
+        console.log(search_results.map(r=>r.date))
+        
 
 
     })
