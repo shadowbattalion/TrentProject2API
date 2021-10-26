@@ -121,14 +121,14 @@ async function main() {
     
             
     
-            let witnesses = await db.collection('witness').find().toArray()
+            let witnesses = await db.collection('witness').find({},{"projection":{"display_name":1,"cases":1}}).toArray()
                         
             for(let witness of witnesses){
                 cases_details=[]
                 for(let c of witness.cases){
 
 
-                    case_detail=await db.collection('cases').findOne({"_id":c},{"projection":{"entity_tags":0,"comments":0}})
+                    case_detail=await db.collection('cases').findOne({"_id":c},{"projection":{"case_title":1, "generic_description":1, "date":1}})
                     cases_details.push(case_detail)
                     
 
