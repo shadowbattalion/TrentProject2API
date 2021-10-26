@@ -26,53 +26,77 @@ async function main() {
 
     app.get('/search_cases', async (req, res) => {
 
+        try {
+            let db = MongoUtil.getDB();
+            search_parameters={}
 
-        let db = MongoUtil.getDB();
-        search_parameters={}
-
-        console.log(req.query.search_entity_tags)
-        console.log(req.query.from_date)
-        console.log(req.query.to_date)
-
-        
-        search_entity_tags = req.query.search_entity_tags
-        from_date = req.query.from_date
-        to_date = req.query.to_date
-
-        // if(search_entity_tags){
-
-        //     let search_entity_tags_object_id = search_entity_tags.map(tag=>ObjectId(tag))
-        
-        
-
-        //     search_parameters["entity_tags"]={
-        //         '$in':search_entity_tags_object_id
-        //     }
-
-
-        // }
-
-        if(from_date){
-
-            search_parameters["date"] = Date.parse(from_date)
             
-        
+            search_entity_tags = req.query.search_entity_tags
+            from_date = req.query.from_date
+            to_date = req.query.to_date
 
+
+            if(search_entity_tags){
+
+                let search_entity_tags_object_id = search_entity_tags.map(tag=>ObjectId(tag))
+            
+            
+
+                search_parameters["entity_tags"]={
+                    '$in':search_entity_tags_object_id
+                }
+
+
+            }
+
+            if(from_date && to_date){
+
+                search_parameters["date"] = {
+                    '$gte': new Date(from_date),
+                    '$lte': new Date(to_date)
+                }
+            
+
+            }else if(from_date){
+
+                search_parameters["date"] = {
+                    '$gte': new Date(from_date)
+                }
+
+            }else if(to_date){
+                
+
+                search_parameters["date"] = {
+                    '$lte': new Date(to_date)
+                }
+
+            }
+
+            
+            let search_results = await db.collection('cases').find(search_parameters).toArray()
+            
+
+            let witnesses = [] 
+            
+            for(let search_result of search_results){
+
+                witness=await db.collection('witness').findOne({"cases":ObjectId(search_result._id)},{"projection":{"cases":0}})
+                witness["case"]=search_result
+                witnesses.push(witness)
+
+            }
+            
+            // console.log(witnesses.map(w=>w.case))
+
+            res.status(200)
+            res.json(witnesses)
+
+
+        
+        } catch (e) {
+            res.status(500)
+            res.send(e)         
         }
-
-        // if(to_date){
-
-
-
-        // }
-
-
-
-        console.log(search_parameters)
-        let search_results = await db.collection('cases').find(search_parameters).toArray()
-        console.log(search_results.map(r=>r.date))
-        
-
 
     })
 
@@ -443,7 +467,7 @@ async function main() {
                         "generic_description":user_input.case.generic_description,
                         "type_of_activity":user_input.case.type_of_activity,
                         "location":user_input.case.location,
-                        "date":user_input.case.date,
+                        "date":new Date(user_input.case.date),
                         "entity_tags":user_input.case.entity_tags.map(tag=>ObjectId(tag)),
                         "encounters":encounters_id,
                         "comments":[]
@@ -602,7 +626,7 @@ async function main() {
                             "type_of_activity":user_input.case.type_of_activity,
                             // "rating":user_input.case.rating,
                             "location":user_input.case.location,
-                            "date":user_input.case.date,
+                            "date": new Date(user_input.case.date),
                             "entity_tags":user_input.case.entity_tags.map(tag=>ObjectId(tag))
                         }
                     }) 
