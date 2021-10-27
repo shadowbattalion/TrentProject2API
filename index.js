@@ -593,8 +593,8 @@ async function main() {
             
             let encounter_list_details=false
             for(let encounter of user_input.encounters){
-
-                if(encounter.image && encounter.equipment_used && encounter.contact_type && encounter.number_of_entities && encounter.time_of_encounter){
+               
+                if((encounter.image && encounter.equipment_used && encounter.contact_type && encounter.number_of_entities && encounter.time_of_encounter)||encounter.encounter_status=="deleted"){
 
                     encounter_list_details=true
 
@@ -606,6 +606,7 @@ async function main() {
 
             }
 
+            
             
             if(check_id_exists && encounter_list_details && user_input.case.case_title && user_input.case.type_of_activity && user_input.case.location && user_input.case.date && user_input.case.entity_tags && user_input.encounters.length!=0){
                 //cases
@@ -650,7 +651,7 @@ async function main() {
 
 
 
-                        }else if(Object.keys(encounter).length==1){
+                        }else if(encounter.encounter_status=="deleted"){
                             
                             let test = await db.collection('encounters').deleteOne({
                                 "_id": ObjectId(encounter._id)
@@ -705,7 +706,7 @@ async function main() {
                 res.send("Case updated!")
             
             }else{
-                    
+                
                 res.status(400)
                 res.send("Malformed input")
 
