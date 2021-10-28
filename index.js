@@ -179,7 +179,7 @@ async function main() {
 
             entity_tag_details=[]
             for(let entity_tag_id of cases_detail.entity_tags){
-                entity_tag_detail=await db.collection('entity_tags').findOne({"_id":entity_tag_id},{"projection":{"entity":0,"_id":1}})
+                entity_tag_detail=await db.collection('entity_tags').findOne({"_id":entity_tag_id},{"projection":{"entity":1,"_id":1}})
                 entity_tag_details.push(entity_tag_detail)
             }
             cases_detail.entity_tags=entity_tag_details
