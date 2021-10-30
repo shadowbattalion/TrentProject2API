@@ -603,7 +603,7 @@ async function main() {
 
                 let check_image = encounter.image && /https?:\/\/[^\s].[^\s]*$/.test(encounter.image)
                 let check_number_of_entities = encounter.number_of_entities && /\d/.test(encounter.number_of_entities) && parseInt(encounter.number_of_entities)>=1
-               
+                
                 if((check_image && encounter.equipment_used && encounter.contact_type && check_number_of_entities && encounter.time_of_encounter)||encounter.encounter_status=="deleted"){
 
                     encounter_list_details=true
@@ -844,7 +844,7 @@ async function main() {
 
 main();
 
-// START SERVER
-app.listen(process.env.PORT, () => {
+// START SERVER process.env.PORT
+app.listen(3000, () => {
     console.log("Server started")
 })
