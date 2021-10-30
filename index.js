@@ -412,7 +412,7 @@ async function main() {
             for(let encounter of user_input.encounters){
 
                 let check_image = encounter.image && /https?:\/\/[^\s].[^\s]*$/.test(encounter.image)
-                let check_number_of_entities = encounter.number_of_entities && /\d/.test(encounter.number_of_entities) && parseInt(encounter.number_of_entities)>=1
+                let check_number_of_entities = encounter.number_of_entities && !isNaN(encounter.number_of_entities) && parseInt(encounter.number_of_entities)>=1
 
                 if(check_image && encounter.equipment_used && encounter.contact_type && check_number_of_entities && encounter.time_of_encounter){
 
@@ -427,7 +427,7 @@ async function main() {
             }
 
             let check_display_name =user_input.witness.display_name && user_input.witness.display_name.length<=25
-            let check_age = user_input.witness.age && /\d/.test(user_input.witness.age) && (parseInt(user_input.witness.age)>=10 && parseInt(user_input.witness.age)<=120)
+            let check_age = user_input.witness.age && !isNaN(user_input.witness.age) && (parseInt(user_input.witness.age)>=10 && parseInt(user_input.witness.age)<=120)
             let check_case_title = user_input.case.case_title && user_input.case.case_title.length<=50
             let check_location = user_input.case.location && user_input.case.location.length<=100
             
@@ -602,7 +602,7 @@ async function main() {
             for(let encounter of user_input.encounters){
 
                 let check_image = encounter.image && /https?:\/\/[^\s].[^\s]*$/.test(encounter.image)
-                let check_number_of_entities = encounter.number_of_entities && /\d/.test(encounter.number_of_entities) && parseInt(encounter.number_of_entities)>=1
+                let check_number_of_entities = encounter.number_of_entities && !isNaN(encounter.number_of_entities) && parseInt(encounter.number_of_entities)>=1
                 
                 if((check_image && encounter.equipment_used && encounter.contact_type && check_number_of_entities && encounter.time_of_encounter)||encounter.encounter_status=="deleted"){
 
