@@ -411,7 +411,10 @@ async function main() {
             let encounter_list_details=false
             for(let encounter of user_input.encounters){
 
-                if(encounter.image && encounter.equipment_used && encounter.contact_type && encounter.number_of_entities && encounter.time_of_encounter){
+                let check_image = encounter.image && /https?:\/\/[^\s].[^\s]*$/.test(encounter.image)
+                let check_number_of_entities = encounter.number_of_entities && /\d/.test(encounter.number_of_entities) && parseInt(encounter.number_of_entities)>=1
+
+                if(check_image && encounter.equipment_used && encounter.contact_type && check_number_of_entities && encounter.time_of_encounter){
 
                     encounter_list_details=true
 
@@ -423,8 +426,12 @@ async function main() {
 
             }
 
-
-            if(encounter_list_details && user_input.witness.email_address && user_input.witness.display_name && user_input.witness.age && user_input.case.case_title && user_input.case.type_of_activity && user_input.case.location && user_input.case.date && user_input.case.entity_tags && user_input.encounters.length!=0){
+            let check_display_name =user_input.witness.display_name && user_input.witness.display_name.length<=25
+            let check_age = user_input.witness.age && /\d/.test(user_input.witness.age) && (parseInt(user_input.witness.age)>=10 && parseInt(user_input.witness.age)<=120)
+            let check_case_title = user_input.case.case_title && user_input.case.case_title.length<=50
+            let check_location = user_input.case.location && user_input.case.location.length<=100
+            
+            if(encounter_list_details && user_input.witness.email_address && check_display_name && check_age && check_case_title && user_input.case.type_of_activity && check_location && user_input.case.date && user_input.case.entity_tags && user_input.encounters.length!=0){
                 
 
             
@@ -593,8 +600,11 @@ async function main() {
             
             let encounter_list_details=false
             for(let encounter of user_input.encounters){
+
+                let check_image = encounter.image && /https?:\/\/[^\s].[^\s]*$/.test(encounter.image)
+                let check_number_of_entities = encounter.number_of_entities && /\d/.test(encounter.number_of_entities) && parseInt(encounter.number_of_entities)>=1
                
-                if((encounter.image && encounter.equipment_used && encounter.contact_type && encounter.number_of_entities && encounter.time_of_encounter)||encounter.encounter_status=="deleted"){
+                if((check_image && encounter.equipment_used && encounter.contact_type && check_number_of_entities && encounter.time_of_encounter)||encounter.encounter_status=="deleted"){
 
                     encounter_list_details=true
 
@@ -607,8 +617,12 @@ async function main() {
             }
 
             
-            
-            if(check_id_exists && encounter_list_details && user_input.case.case_title && user_input.case.type_of_activity && user_input.case.location && user_input.case.date && user_input.case.entity_tags && user_input.encounters.length!=0){
+           
+            let check_case_title = user_input.case.case_title && user_input.case.case_title.length<=50
+            let check_location = user_input.case.location && user_input.case.location.length<=100
+
+                                                                                                                                                               
+            if(check_id_exists && encounter_list_details && check_case_title && user_input.case.type_of_activity && check_location  && user_input.case.date && user_input.case.entity_tags && user_input.encounters.length!=0){
                 //cases
                 if("case" in user_input){
                     await db.collection('cases').updateOne({
