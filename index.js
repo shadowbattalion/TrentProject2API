@@ -585,7 +585,7 @@ async function main() {
     // }
 
     //needs encounter id if there is a change in the encounter
-    app.put('/update_case/:id', async (req, res) => {
+    app.put('/edit_case/:id', async (req, res) => {
 
         try {
             let db = MongoUtil.getDB()
