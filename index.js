@@ -481,11 +481,24 @@ async function main() {
 
                 // witness
 
-                let email = await db.collection('witness').findOne({"email_address":user_input.witness.email_address})
+                let email = await db.collection('witness').findOne({"email_address":user_input.witness.email_address},{"projection":{"email_address":1}})
                 
-
-                if(email===null){
+                console.log(email)
+                if(email){
                     
+                    await db.collection('witness').updateOne({ 
+                        "email_address": user_input.witness.email_address
+                    }, {
+                            $push: {
+                                "cases":case_id
+                            }
+                    })
+
+
+                }else{
+
+                    
+
                     let witness_id = new ObjectId()
 
                     await db.collection('witness').insertOne({ 
@@ -498,19 +511,6 @@ async function main() {
                         "cases":[case_id]
                             
                     })
-
-
-                }else{
-
-                    
-                    await db.collection('witness').updateOne({ 
-                        "email": user_input.witness.email
-                    }, {
-                            $push: {
-                                "cases":case_id
-                            }
-                    })
-
 
 
                 }
