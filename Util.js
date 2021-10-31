@@ -1,0 +1,21 @@
+const client_of_mongo = require("mongodb").MongoClient
+
+
+let database
+
+async function connect(uri, database_name)
+{
+    let mongo_client = await client_of_mongo.connect(uri, {
+        useUnifiedTopology:true
+    })
+    database = mongo_client.db(database_name)
+    
+}
+
+function get_database() {
+    return database
+}
+
+module.exports = {
+    connect, get_database
+}

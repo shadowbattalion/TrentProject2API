@@ -1,7 +1,7 @@
 const express = require('express')
 const cors = require('cors')
 require('dotenv').config()
-const MongoUtil = require('./MongoUtil.js')
+const MongoUtil = require('./Util.js')
 const ObjectId = require('mongodb').ObjectId;
 
 
@@ -16,6 +16,7 @@ async function main() {
 
  
     await MongoUtil.connect(process.env.MONGO_URI, "ghost_sightings")
+    console.log("Database connected")
 
     app.get('/search_cases', async (req, res) => {
 
@@ -79,7 +80,7 @@ async function main() {
 
             }
             
-            // console.log(witnesses.map(w=>w.case))
+            
 
             res.status(200)
             res.json(witnesses)
@@ -483,7 +484,7 @@ async function main() {
 
                 let email = await db.collection('witness').findOne({"email_address":user_input.witness.email_address},{"projection":{"email_address":1}})
                 
-                console.log(email)
+                
                 if(email){
                     
                     await db.collection('witness').updateOne({ 
@@ -844,7 +845,7 @@ async function main() {
 
 main();
 
-// START SERVER 
-app.listen(process.env.PORT, () => {
+// START SERVER  process.env.PORT
+app.listen(3000, () => {
     console.log("Server started")
 })
