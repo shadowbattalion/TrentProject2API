@@ -12,10 +12,10 @@ async function connect(uri, database_name)
     
 }
 
-function get_database() {
+function getDatabase() {
     return database
 }
 
 module.exports = {
-    connect, get_database
+    connect, getDatabase
 }

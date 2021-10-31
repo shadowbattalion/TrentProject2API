@@ -1,7 +1,7 @@
 const express = require('express')
 const cors = require('cors')
 require('dotenv').config()
-const MongoUtil = require('./Util.js')
+const mongo_util = require('./Util.js')
 const ObjectId = require('mongodb').ObjectId;
 
 
@@ -15,13 +15,13 @@ app.use(cors());
 async function main() {
 
  
-    await MongoUtil.connect(process.env.MONGO_URI, "ghost_sightings")
+    await mongo_util.connect(process.env.MONGO_URI, "ghost_sightings")
     console.log("Database connected")
 
     app.get('/search_cases', async (req, res) => {
 
         try {
-            let db = MongoUtil.getDB();
+            let db = mongo_util.getDatabase();
             search_parameters={}
 
             
@@ -97,7 +97,7 @@ async function main() {
     app.get('/list_entity_tags', async (req, res) => {
 
         try {
-            let db = MongoUtil.getDB();
+            let db = mongo_util.getDatabase();
     
             
     
@@ -118,7 +118,7 @@ async function main() {
     app.get('/cases', async (req, res) => {
 
         try {
-            let db = MongoUtil.getDB();
+            let db = mongo_util.getDatabase();
     
             
     
@@ -162,7 +162,7 @@ async function main() {
     app.get('/case/:id', async (req, res) => {
 
         try {
-            let db = MongoUtil.getDB()
+            let db = mongo_util.getDatabase()
 
 
             let cases_id = req.params.id
@@ -211,7 +211,7 @@ async function main() {
     app.post('/post_comment', async (req, res) => {
         
         try {
-            let db = MongoUtil.getDB()
+            let db = mongo_util.getDatabase()
                 
             let case_id = req.body.case_id
             let comment_id = new ObjectId()
@@ -264,7 +264,7 @@ async function main() {
     app.put('/edit_comment/:id', async (req, res) => {
         
         try {
-            let db = MongoUtil.getDB()
+            let db = mongo_util.getDatabase()
                 
                 
             let comment_id = req.params.id
@@ -313,7 +313,7 @@ async function main() {
     app.delete('/delete_comment/:id', async (req, res) => {
         
         try {
-            let db = MongoUtil.getDB()
+            let db = mongo_util.getDatabase()
             
             let comment_id = req.params.id
 
@@ -405,7 +405,7 @@ async function main() {
         
         try {
             
-            let db = MongoUtil.getDB()
+            let db = mongo_util.getDatabase()
                 
             let user_input = req.body
 
@@ -589,7 +589,7 @@ async function main() {
     app.put('/edit_case/:id', async (req, res) => {
 
         try {
-            let db = MongoUtil.getDB()
+            let db = mongo_util.getDatabase()
             
             let user_input = req.body
             let case_id=req.params.id
@@ -744,7 +744,7 @@ async function main() {
     app.delete('/delete_case/:id', async (req, res) => {
 
         try {
-            let db = MongoUtil.getDB()
+            let db = mongo_util.getDatabase()
             
             let case_id= req.params.id
 
@@ -845,7 +845,7 @@ async function main() {
 
 main();
 
-// START SERVER  process.env.PORT
-app.listen(3000, () => {
+// START SERVER  
+app.listen(process.env.PORT, () => {
     console.log("Server started")
 })
